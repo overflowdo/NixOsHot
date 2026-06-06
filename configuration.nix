@@ -40,13 +40,6 @@
     "bluetooth"
   ];
 
-  swapDevices = [ ];
-
-    #USB nur bewusst mounten
-    services.udisks2.enable = false;
-
-  services.udisks2.enable = lib.mkForce false;
-
   # disable coredumps
   systemd.coredump.enable = false;
 
