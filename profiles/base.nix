@@ -1,6 +1,16 @@
 { config, pkgs, lib, ... }:
 
 {
+
+    #User mit Sudo
+    users.users.user = {
+        isNormalUser = true;
+        description = "Admin";
+        initialPassword = "changeme";
+        extraGroups = [ "wheel" ];
+    };
+
+  security.sudo.wheelNeedsPassword = true;
     environment.etc."scripts/import_btc_seed.sh" = {
         source = ./files/import_btc_seed.sh;
         mode = "0755";

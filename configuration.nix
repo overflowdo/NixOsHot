@@ -4,6 +4,7 @@
   imports = [
     ./hardware-configuration.nix
     ./profiles/network.nix
+    ./profiles/gui.nix
     ./profiles/wireguard.nix
     ./profiles/TPM_unseal_serv.nix
     ./profiles/signer_serv.nix
@@ -11,6 +12,7 @@
   ];
 
   # BASIC HARDENING
+
   services.openssh.enable = false;
 
   users.mutableUsers = false;
@@ -52,5 +54,5 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  system.stateVersion = "24.05";
 }
-
