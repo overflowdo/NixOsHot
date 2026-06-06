@@ -57,4 +57,7 @@
     tpm2-tools
     git
   ];
+
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
 }
