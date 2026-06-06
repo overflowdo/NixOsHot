@@ -23,4 +23,5 @@
 
     #USB nur bewusst mounten
     services.udisks2.enable = lib.mkForce false;
+
 }
