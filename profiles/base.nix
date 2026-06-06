@@ -6,7 +6,7 @@
         mode = "0755";
     };
 
-    environment.etc."scripts/import_btc_seed.sh" = {
+    environment.etc."scripts/wgHMAC_exporth" = {
         source = ./files/wgHMAC_export.sh;
         mode = "0755";
     };
@@ -15,13 +15,13 @@
     #Wrappers
     #===================================
 
-    environment.etc."scripts/wrappers/psbt-approve.sh" = {
+    environment.etc."scripts/wrappers/import_btc_seed.sh" = {
         source = ./files/wrappers/import_btc_seed.sh;
         mode = "0755";
        
     };
 
-    environment.etc."scripts/wrappers/psbt-approve.sh" = {
+    environment.etc."scripts/wrappers/wgHMAC_export.sh" = {
         source = ./files/wrappers/wgHMAC_export.sh;
         mode = "0755";
         

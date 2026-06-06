@@ -110,26 +110,9 @@ fi
 rm -rf /mnt/etc/nixos/.repo
 rm -rf /etc/nixos/.git
 
-echo "[9/10] Ensure bootloader + swap is configured (patch if missing)"
-if ! grep -q "swapDevices" /mnt/etc/nixos/hardware-configuration.nix; then
-  cat >> /mnt/etc/nixos/hardware-configuration.nix <<'EOF'
-
-swapDevices = [
-  { device = "/.swapfile"; }
-];
-EOF
-fi
-
-if ! grep -q "boot.loader.systemd-boot.enable" /mnt/etc/nixos/configuration.nix; then
-  cat >> /mnt/etc/nixos/configuration.nix <<'EOF'
-
-boot.loader.systemd-boot.enable = true;
-boot.loader.efi.canTouchEfiVariables = true;
-EOF
-fi
 
 echo "[9/9] Install NixOS"
 export NIX_CONFIG="experimental-features = nix-command flakes"
-nixos-install --no-root-passwd --flake /mnt/etc/nixos#cold
+nixos-install --no-root-passwd --flake /mnt/etc/nixos#hot
 
 echo "DONE. Remove ISO in Proxmox and reboot."

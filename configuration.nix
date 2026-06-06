@@ -2,7 +2,7 @@
 
 {
   imports = [
-    ./profiles/hardware-configuration.nix
+    ./hardware-configuration.nix
     ./profiles/network.nix
     ./profiles/wireguard.nix
     ./profiles/TPM_unseal_serv.nix
@@ -10,14 +10,7 @@
     ./profiles/base.nix
   ];
 
-  # -----------------------
   # BASIC HARDENING
-  # -----------------------
-
-  networking.firewall.enable = true;
-
-  networking.firewall.allowedTCPPorts = [ 8080 ];
-  networking.firewall.allowPing = false;
 
   services.openssh.enable = false;
 
@@ -40,13 +33,6 @@
     "bluetooth"
   ];
 
-  swapDevices = [ ];
-
-    #USB nur bewusst mounten
-    services.udisks2.enable = false;
-
-  services.udisks2.enable = lib.mkForce false;
-
   # disable coredumps
   systemd.coredump.enable = false;
 
@@ -56,12 +42,14 @@
     Compress=yes
   '';
 
-  # -----------------------
+
   # PACKAGES
-  # -----------------------
   environment.systemPackages = with pkgs; [
     python311
     tpm2-tools
     git
   ];
+
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
 }
