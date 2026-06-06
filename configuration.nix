@@ -49,6 +49,7 @@
     python311
     tpm2-tools
     git
+    wireguard-tools
   ];
 
   boot.loader.systemd-boot.enable = true;
