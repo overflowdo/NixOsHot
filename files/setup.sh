@@ -130,6 +130,6 @@ fi
 
 echo "[9/9] Install NixOS"
 export NIX_CONFIG="experimental-features = nix-command flakes"
-nixos-install --no-root-passwd --flake /mnt/etc/nixos#cold
+nixos-install --no-root-passwd --flake /mnt/etc/nixos#hot
 
 echo "DONE. Remove ISO in Proxmox and reboot."
