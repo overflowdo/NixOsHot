@@ -22,5 +22,5 @@
   swapDevices = [ ];
 
     #USB nur bewusst mounten
-    services.udisks2.enable = lib mkforce false;
+    services.udisks2.enable = lib.mkForce false;
 }
