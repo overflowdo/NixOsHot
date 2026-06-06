@@ -11,7 +11,6 @@
   ];
 
   # BASIC HARDENING
-
   services.openssh.enable = false;
 
   users.mutableUsers = false;
@@ -52,4 +51,6 @@
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+
 }
+
