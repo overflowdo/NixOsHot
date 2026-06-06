@@ -1,4 +1,4 @@
-{ config, pkgs, modulesPath, ... }:
+{ config, pkgs, lib, modulesPath, ... }:
 
 {
   imports = [
@@ -22,5 +22,5 @@
   swapDevices = [ ];
 
     #USB nur bewusst mounten
-    services.udisks2.enable = false;
+    services.udisks2.enable = lib mkforce false;
 }
