@@ -1,0 +1,67 @@
+{ config, pkgs, ... }:
+
+{
+  imports = [
+    ./profiles/hardware-configuration.nix
+    ./profiles/network.nix
+    ./profiles/wireguard.nix
+    ./profiles/TPM_unseal_serv.nix
+    ./profiles/signer_serv.nix
+    ./profiles/base.nix
+  ];
+
+  # -----------------------
+  # BASIC HARDENING
+  # -----------------------
+
+  networking.firewall.enable = true;
+
+  networking.firewall.allowedTCPPorts = [ 8080 ];
+  networking.firewall.allowPing = false;
+
+  services.openssh.enable = false;
+
+  users.mutableUsers = false;
+
+  security.sudo.enable = false;
+
+  boot.kernel.sysctl = {
+    "kernel.kptr_restrict" = 2;
+    "kernel.dmesg_restrict" = 1;
+    "kernel.unprivileged_bpf_disabled" = 1;
+    "net.ipv4.conf.all.rp_filter" = 1;
+    "net.ipv4.conf.default.rp_filter" = 1;
+    "kernel.randomize_va_space" = 2;
+  };
+
+  security.lockKernelModules = true;
+  boot.blacklistedKernelModules = [
+    "firewire-core"
+    "bluetooth"
+  ];
+
+  swapDevices = [ ];
+
+    #USB nur bewusst mounten
+    services.udisks2.enable = false;
+
+  services.udisks2.enable = lib.mkForce false;
+
+  # disable coredumps
+  systemd.coredump.enable = false;
+
+  # volatile logs (no disk persistence)
+  services.journald.extraConfig = ''
+    Storage=volatile
+    Compress=yes
+  '';
+
+  # -----------------------
+  # PACKAGES
+  # -----------------------
+  environment.systemPackages = with pkgs; [
+    python311
+    tpm2-tools
+    git
+  ];
+}

@@ -1,0 +1,6 @@
+secp256k1
+python-multipart
+fastapi
+uvicorn
+python-bitcointx
+cryptography
