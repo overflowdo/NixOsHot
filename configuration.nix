@@ -14,11 +14,6 @@
   # BASIC HARDENING
   # -----------------------
 
-  networking.firewall.enable = true;
-
-  networking.firewall.allowedTCPPorts = [ 8080 ];
-  networking.firewall.allowPing = false;
-
   services.openssh.enable = false;
 
   users.mutableUsers = false;
