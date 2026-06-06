@@ -12,7 +12,6 @@
   '';
 
   networking.firewall = {
-    enable = true;
 
     allowedTCPPorts = [ 8080 ];  # signer API
     allowedUDPPorts = [ 51820 ]; # wireguard
