@@ -11,13 +11,10 @@
     ./profiles/base.nix
   ];
 
-  # BASIC HARDENING
+  # HARDENING
 
   services.openssh.enable = false;
 
-  users.mutableUsers = false;
-
-  security.sudo.enable = false;
 
   boot.kernel.sysctl = {
     "kernel.kptr_restrict" = 2;
