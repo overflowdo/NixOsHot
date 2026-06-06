@@ -47,6 +47,7 @@
     tpm2-tools
     git
     wireguard-tools
+    openssl
   ];
 
   boot.loader.systemd-boot.enable = true;
