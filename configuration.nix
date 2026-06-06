@@ -2,7 +2,7 @@
 
 {
   imports = [
-    ./profiles/hardware-configuration.nix
+    ./hardware-configuration.nix
     ./profiles/network.nix
     ./profiles/wireguard.nix
     ./profiles/TPM_unseal_serv.nix
