@@ -2,6 +2,8 @@
 set -euo pipefail
 
 USB_MOUNT="/mnt/usb"
+USB_DEVICE="/dev/disk/by-label/USB"
+
 SEED_TARGET="/tmp/btc_seed.bin"
 TPM_DIR="/var/lib/tpm"
 SEALED_OUT="${TPM_DIR}/bitcoin-sealed.bin"
@@ -10,7 +12,7 @@ echo "[1] Mount USB..."
 
 lsblk
 mkdir -p "$USB_MOUNT"
-mount /dev/sdX1 "$USB_MOUNT"   # <-- anpassen
+mount "$USB_DEVICE" "$USB_MOUNT"
 
 echo "[2] Copy Bitcoin seed..."
 
