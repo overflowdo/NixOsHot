@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-TARGET="/etc/scripts/setup/wgHMAC_export.sh"
+TARGET="/etc/scripts/wgHMAC_export.sh"
 
 # echte Pfade auflösen
 SELF_REAL="$(readlink -f "$0")"
