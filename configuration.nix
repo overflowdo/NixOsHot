@@ -46,12 +46,14 @@
 
   # PACKAGES
   environment.systemPackages = with pkgs; [
-    python311
     tpm2-tools
     git
     wireguard-tools
     nftables
     openssl
+    (python3.withPackages (ps: with ps; [
+      bip-utils
+    ]))
   ];
 
   security.tpm2 = {
