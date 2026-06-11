@@ -58,23 +58,6 @@ curl --user user:pass \
 DESC_FILE="/var/lib/signer/wallet/descriptor.public.txt"
 DESC=$(cat "$DESC_FILE")
 
-curl --user user:pass \
-  --data-binary '{
-    "jsonrpc": "1.0",
-    "id": "importdesc",
-    "method": "importdescriptors",
-    "params": [[
-      {
-        "desc": "${DESC}",
-        "timestamp": "now",
-        "active": true,
-        "internal": false,
-        "range": [0, 1000]
-      }
-    ]]
-  }' \
-  -H 'content-type: text/plain;' \
-  http://192.168.99.101:18443/wallet/keyA
 
 #Nochmal ziehen mit checksum
 DESC=$(curl --user user:pass \

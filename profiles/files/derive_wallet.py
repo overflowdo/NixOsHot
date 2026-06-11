@@ -8,6 +8,9 @@ from bip_utils import (
     Bip84Coins,
     Bip44Changes
 )
+from embit import bip39
+from embit.bip32 import HDKey
+from embit.descriptor import Descriptor
 
 
 # INPUT (from TPM unseal)
@@ -20,23 +23,40 @@ passphrase = ""
 
 
 # WALLET DERIVATION
-bip84_ctx = Bip84.FromSeed(seed_bytes, Bip84Coins.BITCOIN)
 
-del seed_bytes
 
-account = bip84_ctx.Purpose().Coin().Account(0)
-change = account.Change(Bip44Changes.CHAIN_EXT)
+mnemonic = "media ride cigar habit this tuna chair island salt bubble famous zebra"
+passphrase = ""
 
-master_pubkey = bip84_ctx.PublicKey().RawCompressed().ToBytes()
-fingerprint = hashlib.new(
-    "ripemd160",
-    hashlib.sha256(master_pubkey).digest()
-).digest()[:4].hex()
 
-xpub = account.PublicKey().ToExtended()
+derivation_path = "m/84'/0'/0'" 
 
-pub_desc = f"wpkh([{fingerprint}/84h/0h/0h]{xpub}/0/*)"
-change_desc   = f"wpkh([{fingerprint}/84h/0h/0h]{xpub}/1/*)"
+
+seed = bip39.mnemonic_to_seed(mnemonic, passphrase=passphrase)
+
+
+root_key = HDKey.from_seed(seed)
+
+
+master_fingerprint = root_key.child(0).fingerprint
+fingerprint_hex = root_key.fingerprint.hex()
+
+
+account_key = root_key.derive(derivation_path)
+
+
+xpub_string = account_key.to_public().to_string()
+
+
+path_cleaned = derivation_path.replace("m/", "")
+descriptor_format = f"wpkh([{fingerprint_hex}/{path_cleaned}]{xpub_string}/0/*)"
+
+# 9. Checksumme berechnen (Sparrow fügt immer eine standardisierte Bitcoin-Core-Checksumme an)
+desc_obj = Descriptor.from_string(descriptor_format)
+pub_desc = str(desc_obj)
+
+# Ausgabe
+
 
 # OUTPUT DIRS
 out_dir = os.environ.get("STATE_DIR", "/var/lib/signer/wallet")
@@ -52,13 +72,12 @@ with open(pub_file, "w") as f:
     f.write(pub_desc)
 
 with open(xpub_file, "w") as f:
-    f.write(xpub)
+    f.write(xpub_string)
 
 with open(meta_file, "w") as f:
     json.dump({
         "network": NETWORK,
-        "fingerprint": fingerprint,
+        "fingerprint": fingerprint_hex,
         "xpub_file": xpub_file,
-        "descriptor": pub_desc,
-        "change_descriptor": change_desc
+        "descriptor": pub_desc
     }, f, indent=2)

@@ -53,7 +53,8 @@
     nftables
     openssl
     (python3.withPackages (ps: with ps; [
-      bip-utils
+      embit
+      pip
     ]))
   ];
 
