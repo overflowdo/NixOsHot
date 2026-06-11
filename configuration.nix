@@ -53,7 +53,6 @@
     nftables
     openssl
     (python3.withPackages (ps: with ps; [
-      (pkgs.python3Packages.callPackage ./embit.nix {})
       pip
     ]))
   ];
