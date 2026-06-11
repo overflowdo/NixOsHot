@@ -4,15 +4,36 @@ let
   appDir = "/psbt-signer";
 in
 {
+  systemd.services.psbt-signer-init = {
+    wantedBy = [ "multi-user.target" ];
+
+    serviceConfig = {
+      Type = "oneshot";
+    };
+
+    script = ''
+      if [ ! -d "/psbt-signer/venv" ]; then
+        ${pkgs.python311}/bin/python -m venv /psbt-signer/venv
+      fi
+
+      /psbt-signer/venv/bin/pip install --upgrade pip
+      /psbt-signer/venv/bin/pip install -r /psbt-signer/requirements.txt
+    '';
+  };
+
   systemd.services.psbt-signer = {
     wantedBy = [ "multi-user.target" ];
-    after = [ "network.target" "tpm-unseal.service" ];
+
+    requires = [ "psbt-signer-init.service" ];
+    after = [ "network.target" "psbt-signer-init.service" ];
 
     serviceConfig = {
       Type = "simple";
       Restart = "always";
 
-      DynamicUser = true;
+      User = "psbt";
+     Group = "psbt";
+
       NoNewPrivileges = true;
       PrivateTmp = true;
       PrivateDevices = true;
@@ -26,23 +47,14 @@ in
       MemoryDenyWriteExecute = true;
       RestrictAddressFamilies = [ "AF_INET" "AF_INET6" ];
 
-      WorkingDirectory = appDir;
+      WorkingDirectory = "/psbt-signer";
 
       ExecStart = ''
-        ${appDir}/venv/bin/uvicorn app.signer:app \
+        /psbt-signer/venv/bin/uvicorn app.signer:app \
           --host 0.0.0.0 \
           --port 8080
       '';
     };
-
-    preStart = ''
-      if [ ! -d "${appDir}/venv" ]; then
-        ${pkgs.python311}/bin/python -m venv ${appDir}/venv
-      fi
-
-      ${appDir}/venv/bin/pip install --upgrade pip
-      ${appDir}/venv/bin/pip install -r ${appDir}/requirements.txt
-    '';
   };
 
   systemd.services.signer-init = {

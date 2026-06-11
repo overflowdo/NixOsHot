@@ -57,6 +57,10 @@
   security.tpm2 = {
     enable = true;
     abrmd.enable = true;
+    tctiEnvironment = {
+      enable = true;
+      interface = "device";
+    };
   };
 
   boot.loader.systemd-boot.enable = true;
