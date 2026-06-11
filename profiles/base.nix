@@ -12,8 +12,8 @@
 
     security.sudo.wheelNeedsPassword = true;
     
-    environment.etc."scripts/import_btc_seed.sh" = {
-        source = ./files/import_btc_seed.sh;
+    environment.etc."scripts/export_xpub" = {
+        source = ./files/export_xpub.sh;
         mode = "0755";
     };
 
@@ -24,10 +24,9 @@
 
 
     #Wrappers
-    environment.etc."scripts/wrappers/import_btc_seed.sh" = {
-        source = ./files/wrappers/import_btc_seed.sh;
+    environment.etc."scripts/wrappers/export_xpub.sh" = {
+        source = ./files/wrappers/export_xpub.sh;
         mode = "0755";
-       
     };
 
     environment.etc."scripts/wrappers/wgHMAC_export.sh" = {
@@ -43,7 +42,7 @@
         "d /home/user/Desktop 0750 user users - -"
         "d /home/user/Desktop/scripts 0750 user users - -"
 
-        "L+ /home/user/Desktop/scripts/import_btc_seed.sh - - - - /etc/scripts/wrappers/import_btc_seed.sh"
+        "L+ /home/user/Desktop/scripts/export_xpub.sh - - - - /etc/scripts/wrappers/export_xpub.sh"
         "L+ /home/user/Desktop/scripts/wgHMAC_export.sh - - - - /etc/scripts/wrappers/wgHMAC_export.sh"
     ];
 
