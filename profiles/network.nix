@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 
 {
-  networking.firewall.enable = true;
+  networking.firewall.enable = false; # deaktivieren
 
   networking.firewall.allowPing = false;
 
@@ -11,9 +11,22 @@
     Storage=volatile
   '';
 
-  networking.firewall = {
 
-    allowedTCPPorts = [ 8080 ];  # signer API
-    allowedUDPPorts = [ 51820 ]; # wireguard
+  networking.wireguard.enable = true;
+
+  #DNS
+  services.resolved.enable = false;
+  environment.etc."resolv.conf".text = "nameserver 127.0.0.1";
+
+  systemd.services."-" = {
+    serviceConfig = {
+      RestrictAddressFamilies = [
+        "AF_INET"
+        "AF_INET6"
+        "AF_NETLINK"
+      ];
     };
+  };
+
+  networking.nftables.enable = true;
 }

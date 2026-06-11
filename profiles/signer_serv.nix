@@ -12,7 +12,6 @@ in
       Type = "simple";
       Restart = "always";
 
-      # isolation (keep from earlier)
       DynamicUser = true;
       NoNewPrivileges = true;
       PrivateTmp = true;
@@ -44,5 +43,40 @@ in
       ${appDir}/venv/bin/pip install --upgrade pip
       ${appDir}/venv/bin/pip install -r ${appDir}/requirements.txt
     '';
+  };
+
+  systemd.services.signer-init = {
+    description = "Initialize signer identity";
+    wantedBy = [ "multi-user.target" ];
+
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+
+
+    script = ''
+      set -euo pipefail
+
+      STATE=/var/lib/signer/initialized
+
+      if [ -f "$STATE" ]; then
+        echo "[*] already initialized"
+        exit 0
+      fi
+
+
+      echo "[*] switching to setup mode"
+      ${pkgs.nftables}/bin/nft -f /etc/nftables-setup.conf
+
+      /etc/nixos/scripts/gen_wallet.sh
+
+      echo "[*] switching to setup mode"
+      ${pkgs.nftables}/bin/nft -f /etc/nftables-locked.conf
+
+      mkdir -p /var/lib/signer
+      touch "$STATE"
+    '';
+
   };
 }

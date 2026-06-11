@@ -22,10 +22,8 @@
         mode = "0755";
     };
 
-    #===================================
-    #Wrappers
-    #===================================
 
+    #Wrappers
     environment.etc."scripts/wrappers/import_btc_seed.sh" = {
         source = ./files/wrappers/import_btc_seed.sh;
         mode = "0755";
@@ -38,10 +36,8 @@
         
     };
 
-    #===========================
-    #Desktop page mit symlinks auf wrappers
-    #==============================
 
+    #Desktop page mit symlinks auf wrappers
     #Legt Ordner beim Boot an (oder beim tmpfiles-setup)
     systemd.tmpfiles.rules = [
         "d /home/user/Desktop 0750 user users - -"

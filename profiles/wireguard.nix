@@ -1,41 +1,17 @@
-{ config, pkgs, ... }:
+networking.wireguard.interfaces.wg0 = {
+  ips = [ "10.10.0.2/24" ];
 
-{
-  systemd.services.wg-keygen = {
-    description = "Generate WireGuard keypair on first boot";
+  privateKeyFile = "/etc/wireguard/private.key";
 
-    wantedBy = [ "multi-user.target" ];
+  peers = [
+    {
+      publicKey = "";  #Public Key der VM
 
-    before = [
-      "network.target"
-    ];
+      allowedIPs = [ "10.10.0.1/32" ];
 
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-    };
+      endpoint = "192.168.99.78:51820";
 
-    script = ''
-      mkdir -p /etc/wireguard
-
-      if [ ! -f /etc/wireguard/private.key ]; then
-        umask 077
-
-        ${pkgs.wireguard-tools}/bin/wg genkey \
-          | tee /etc/wireguard/private.key \
-          | ${pkgs.wireguard-tools}/bin/wg pubkey \
-          > /etc/wireguard/public.key
-      fi
-    '';
-  };
-
-  networking.wireguard.interfaces.wg0 = {
-    ips = [ "10.10.0.2/24" ];
-
-    listenPort = 51820;
-
-    privateKeyFile = "/etc/wireguard/private.key";
-
-    peers = [ ];
-  };
-}
+      persistentKeepalive = 25;
+    }
+  ];
+};

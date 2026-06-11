@@ -6,7 +6,6 @@
     ./profiles/network.nix
     ./profiles/gui.nix
     ./profiles/wireguard.nix
-    ./profiles/TPM_unseal_serv.nix
     ./profiles/signer_serv.nix
     ./profiles/base.nix
   ];
@@ -15,7 +14,7 @@
 
   services.openssh.enable = false;
 
-
+  #Kernel
   boot.kernel.sysctl = {
     "kernel.kptr_restrict" = 2;
     "kernel.dmesg_restrict" = 1;
@@ -23,6 +22,10 @@
     "net.ipv4.conf.all.rp_filter" = 1;
     "net.ipv4.conf.default.rp_filter" = 1;
     "kernel.randomize_va_space" = 2;
+    "net.ipv4.ip_forward" = 0;
+    "net.ipv6.conf.all.disable_ipv6" = 1;
+    "net.ipv6.conf.default.disable_ipv6" = 1;
+    "net.ipv4.conf.all.route_localnet" = 0;
   };
 
   security.lockKernelModules = true;
@@ -47,6 +50,7 @@
     tpm2-tools
     git
     wireguard-tools
+    nftables
     openssl
   ];
 
