@@ -54,8 +54,10 @@
     openssl
   ];
 
-  services.tpm2-abrmd.enable = false;
-  security.tpm2.enable = true;
+  security.tpm2 = {
+    enable = true;
+    abrmd.enable = true;
+  };
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
