@@ -1,6 +1,8 @@
 import sys
 import os
 import json
+import hashlib
+from hashlib import sha256, new
 from bip_utils import (
     Bip84,
     Bip84Coins,
@@ -25,15 +27,16 @@ del seed_bytes
 account = bip84_ctx.Purpose().Coin().Account(0)
 change = account.Change(Bip44Changes.CHAIN_EXT)
 
-fingerprint = bip84_ctx.PrivateKey().PublicKey().Fingerprint().ToHex()
+master_pubkey = bip84_ctx.PublicKey().RawCompressed().ToBytes()
+fingerprint = hashlib.new(
+    "ripemd160",
+    hashlib.sha256(master_pubkey).digest()
+).digest()[:4].hex()
 
 xpub = account.PublicKey().ToExtended()
 
-
 pub_desc = f"wpkh([{fingerprint}/84h/0h/0h]{xpub}/0/*)"
 change_desc   = f"wpkh([{fingerprint}/84h/0h/0h]{xpub}/1/*)"
-
-
 
 # OUTPUT DIRS
 out_dir = os.environ.get("STATE_DIR", "/var/lib/signer/wallet")

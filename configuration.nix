@@ -48,6 +48,7 @@
   environment.systemPackages = with pkgs; [
     tpm2-tools
     git
+    jq
     wireguard-tools
     nftables
     openssl

@@ -49,7 +49,6 @@ curl --user user:pass \
       false,
       "",
       false,
-      false,
       true
     ]
   }' \
@@ -75,11 +74,36 @@ curl --user user:pass \
     ]]
   }' \
   -H 'content-type: text/plain;' \
-  http://192.168.99.101:18443/
+  http://192.168.99.101:18443/wallet/keyA
 
+#Nochmal ziehen mit checksum
+DESC=$(curl --user user:pass \
+  --data-binary "{\"jsonrpc\":\"1.0\",\"id\":\"checksum\",\"method\":\"getdescriptorinfo\",\"params\":[\"${DESC}\"]}" \
+  -H 'content-type: text/plain;' \
+  http://192.168.99.101:18443/ \
+  | jq -r '.result.descriptor')
+
+#nochmal explizit mit checksum
+curl --user user:pass \
+  --data-binary "{
+    \"jsonrpc\": \"1.0\",
+    \"id\": \"importdesc\",
+    \"method\": \"importdescriptors\",
+    \"params\": [[
+      {
+        \"desc\": \"${DESC}\",
+        \"timestamp\": \"now\",
+        \"active\": true,
+        \"internal\": false,
+        \"range\": [0, 1000]
+      }
+    ]]
+  }" \
+  -H 'content-type: text/plain;' \
+  http://192.168.99.101:18443/wallet/keyA
 
 #Überprüfen
-curl --user regtestuser:password \
+curl --user user:pass \
   --data-binary '{
     "jsonrpc":"1.0",
     "id":"x",
@@ -87,7 +111,7 @@ curl --user regtestuser:password \
     "params":[]
   }' \
   -H 'content-type:text/plain;' \
-  http://192.168.99.101:18443/
+  http://192.168.99.101:18443/wallet/keyA
 
 
 echo "4. Status schreiben ..."
