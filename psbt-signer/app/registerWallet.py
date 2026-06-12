@@ -6,8 +6,8 @@ from pathlib import Path
 
 import requests
 
-STATE_DIR = "/var/lib/signer/state"
-DESC_FILE = "/var/lib/signer/wallet/descriptor.public.txt"
+STATE_DIR = "/vapsbt-signer/run/state"
+DESC_FILE = "/vapsbt-signer/run/wallets/descriptor.public.txt"
 
 RPC_USER = "user"
 RPC_PASSWORD = "pass"
@@ -33,37 +33,21 @@ def rpc_call(url, method, params=None, rpc_id="python"):
         headers={"content-type": "text/plain;"}
     )
 
-    response.raise_for_status()
+    # Zuerst versuchen, die JSON-Fehlermeldung von Bitcoin Core zu lesen
+    try:
+        result = response.json()
+        if result.get("error") is not None:
+            raise RuntimeError(
+                f"RPC-Fehler bei '{method}': {result['error']}"
+            )
+        return result["result"]
+    except ValueError:
+        # Falls die Antwort kein gültiges JSON war (echter 500er Serverfehler)
+        response.raise_for_status()
+        raise
 
-    result = response.json()
-
-    if result.get("error") is not None:
-        raise RuntimeError(
-            f"RPC-Fehler bei '{method}': {result['error']}"
-        )
-
-    return result["result"]
 
 
-print("2. Wallet-Metadaten erzeugen ...")
-
-# tpm2_unseal ausführen
-unseal = subprocess.run(
-    [
-        "tpm2_unseal",
-        "-c",
-        f"{STATE_DIR}/sealed.ctx"
-    ],
-    capture_output=True,
-    check=True
-)
-
-# Ausgabe an derive_wallet.py übergeben
-subprocess.run(
-    ["python3", "derive_wallet.py"],
-    input=unseal.stdout,
-    check=True
-)
 
 print("3. Descriptoren registrieren ...")
 

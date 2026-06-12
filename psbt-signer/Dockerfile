@@ -29,9 +29,4 @@ RUN mkdir -p /data /wallets
 
 EXPOSE 8000
 
-RUN groupadd -g 1000 signer && \
-    useradd -m -u 1000 -g signer signer
-
-USER signer
-
 CMD ["uvicorn", "app.signer:app", "--host", "0.0.0.0", "--port", "8000"]

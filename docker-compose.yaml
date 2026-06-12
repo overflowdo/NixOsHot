@@ -2,7 +2,6 @@ services:
   psbt-signer:
     build: ./psbt-signer
     restart: unless-stopped
-    user: "1000:1000"
 
     volumes:
       - /var/lib/signer/data:/psbt-signer/run/data

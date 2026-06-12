@@ -24,31 +24,27 @@ STATE_DIR = "/run/wallets"
 
 mnemonic = "media ride cigar habit this tuna chair island salt bubble famous zebra"
 
-
-
-derivation_path = "m/84'/0'/0'" 
-
+derivation_path = "m/84h/0h/0h" 
 
 seed = bip39.mnemonic_to_seed(mnemonic)
 
+# HIER WICHTIG: Das Testnet/Regtest-Netzwerkobjekt importieren und übergeben
+from embit.networks import NETWORKS
+network_config = NETWORKS["testnet"] # Regtest nutzt die identischen tpub-Präfixe wie Testnet
 
-root_key = HDKey.from_seed(seed)
+root_key = HDKey.from_seed(seed, network=network_config)
 
-
-master_fingerprint = root_key.child(0).fingerprint
 fingerprint_hex = root_key.fingerprint.hex()
-
 
 account_key = root_key.derive(derivation_path)
 
-
+# Dies generiert nun korrekt ein "tpub..." statt eines "xpub..."
 xpub_string = account_key.to_public().to_string()
-
 
 path_cleaned = derivation_path.replace("m/", "")
 descriptor_format = f"wpkh([{fingerprint_hex}/{path_cleaned}]{xpub_string}/0/*)"
 
-# 9. Checksumme berechnen (Sparrow fügt immer eine standardisierte Bitcoin-Core-Checksumme an)
+# Checksumme berechnen
 desc_obj = Descriptor.from_string(descriptor_format)
 pub_desc = str(desc_obj)
 
