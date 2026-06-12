@@ -17,21 +17,19 @@ seed_hex = sys.stdin.read().strip()
 seed_bytes = bytes.fromhex(seed_hex)
 del seed_hex
 NETWORK = "regtest"
-
-passphrase = ""
-
+STATE_DIR = "/run/wallets"
 
 # WALLET DERIVATION
 
 
 mnemonic = "media ride cigar habit this tuna chair island salt bubble famous zebra"
-passphrase = ""
+
 
 
 derivation_path = "m/84'/0'/0'" 
 
 
-seed = bip39.mnemonic_to_seed(mnemonic, passphrase=passphrase)
+seed = bip39.mnemonic_to_seed(mnemonic)
 
 
 root_key = HDKey.from_seed(seed)
@@ -58,7 +56,7 @@ pub_desc = str(desc_obj)
 
 
 # OUTPUT DIRS
-out_dir = os.environ.get("STATE_DIR", "/var/lib/signer/wallet")
+out_dir = os.environ.get("STATE_DIR", "/psbt-signer/run/wallets")
 os.makedirs(out_dir, exist_ok=True)
 
 pub_file = os.path.join(out_dir, "descriptor.public.txt")

@@ -7,7 +7,7 @@ import hashlib
 
 app = FastAPI()
 
-SIGNING_SECRET = open("/run/secrets/hmac.secret").read().strip()
+SIGNING_SECRET = open("/psbt-signer/run/secrets/hmac.secret").read().strip()
 
 
 @app.post("/sign")

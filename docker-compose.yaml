@@ -5,10 +5,10 @@ services:
     user: "1000:1000"
 
     volumes:
-      - /var/lib/signer/data:/run/data
-      - /var/lib/signer/wallets:/run/wallets
-      - /etc/nixos/psbt-signer/app:/scripts:ro
-      - /var/lib/signer/hmac.secret:/run/secrets/hmac.secret:ro
+      - /var/lib/signer/data:/psbt-signer/run/data
+      - /var/lib/signer/wallets:/psbt-signer/run/wallets
+      - ./psbt-signer/app:/psbt-signer/scripts:ro
+      - /var/lib/signer/hmac.secret:/psbt-signer/run/secrets/hmac.secret:ro
 
     #command: ["python3", "/scripts/signer.py"]
 

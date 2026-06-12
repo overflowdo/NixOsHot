@@ -35,6 +35,15 @@
         "d /home/user/Desktop/scripts 0750 user users - -"
 
         "L+ /home/user/Desktop/scripts/wgHMAC_export.sh - - - - /etc/scripts/wrappers/wgHMAC_export.sh"
+
+        #docker
+        # Hauptverzeichnis
+        "d /psbt-signer 0770 root 1000 -"
+        "d /psbt-signer/run/data 0770 root 1000 -"
+        "d /psbt-signer/run/wallets 0770 root 1000 -"
+        "d /psbt-signer/scripts 0770 root 1000 -"
+        "d /psbt-signer/run/secrets 0770 root 1000 -"
+
     ];
 
     systemd.user.services.thunar-exec-shell-scripts = {

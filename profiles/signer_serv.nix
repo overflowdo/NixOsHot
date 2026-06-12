@@ -18,13 +18,14 @@ in
     script = ''
       set -euo pipefail
 
+
+
       STATE=/var/lib/signer/initialized
 
       if [ -f "$STATE" ]; then
         echo "[*] already initialized"
         exit 0
       fi
-
 
       echo "[*] switching to setup mode"
       ${pkgs.nftables}/bin/nft -f /etc/nftables-setup.conf
@@ -44,8 +45,10 @@ in
       echo "[*] switching to setup mode"
       #${pkgs.nftables}/bin/nft -f /etc/nftables-locked.conf
 
-      docker exec psbt-signer python3 /scripts/genWallet.py
-      docker exec psbt-signer python3 /scripts/registerWallet.py
+      docker compose up
+
+      docker exec nixos-psbt-signer-1 python3 /scripts/genWallet.py
+      docker exec nixos-psbt-signer-1 python3 /scripts/registerWallet.py
 
       mkdir -p /var/lib/signer
       touch "$STATE"
