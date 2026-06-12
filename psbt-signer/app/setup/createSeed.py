@@ -28,7 +28,11 @@ def main():
     print("TPM Primary Key")
     primary_ctx = os.path.join(STATE_DIR, "primary.ctx")
     subprocess.run([
-        "tpm2_createprimary", "-C", "o", "-c", primary_ctx
+        "tpm2_createprimary",
+        "-C", "o",
+        "-g", "sha256",
+        "-G", "ecc", 
+        "-c", primary_ctx
     ], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     print("versiegeln")
@@ -36,8 +40,25 @@ def main():
     seal_priv = os.path.join(STATE_DIR, "seal.priv")
     sealed_ctx = os.path.join(STATE_DIR, "sealed.ctx")
 
-    #TPM an PCR binden für sicherheit
-    policy_file = "/var/lib/signer/pcr.policy"
+
+    #PCR als Autoriserung nehmen
+    session_ctx = os.path.join(STATE_DIR, "session.ctx")
+    policy_file = os.path.join(STATE_DIR, "pcr.policy")
+
+    # A. Starte eine Autorisierungssitzung (Trial Session)
+    subprocess.run([
+        "tpm2_startauthsession", "-S", session_ctx
+    ], check=True)
+
+    # B. Berechne die Policy basierend auf dem aktuellen Zustand von PCR 7
+    subprocess.run([
+        "tpm2_policypcr", "-S", session_ctx, "-l", "sha256:7", "-L", policy_file
+    ], check=True)
+
+    # C. Sitzungskontext schließen und aufräumen
+    subprocess.run(["tpm2_flushcontext", session_ctx], check=True)
+    if os.path.exists(session_ctx):
+        os.remove(session_ctx)
 
     subprocess.run([
         "tpm2_policypcr",
@@ -49,6 +70,8 @@ def main():
     process = subprocess.Popen([
         "tpm2_create", 
         "-C", primary_ctx,
+        "-g", "sha256",
+        "-G", "keyedhash", 
         "-u", seal_pub,
         "-r", seal_priv,
         "-L", policy_file,
