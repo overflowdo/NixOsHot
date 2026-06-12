@@ -1,7 +1,6 @@
 import sys
 import os
 import json
-import hashlib
 from hashlib import sha256, new
 from bip_utils import (
     Bip84,

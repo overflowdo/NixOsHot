@@ -1,5 +1,5 @@
-from app.psbt import load_psbt, serialize_psbt
-from app.wallet import Wallet
+from .psbt import load_psbt, serialize_psbt
+from .wallet import Wallet
 
 def sign_psbt(psbt_bytes: bytes):
     psbt = load_psbt(psbt_bytes)

@@ -1,6 +1,6 @@
 from bitcointx.wallet import CBitcoinSecret, CBitcoinExtKey
 from bitcointx.core.psbt import PartiallySignedTransaction
-from app.tpm import load_seed
+from .tpm import load_seed
 import hashlib
 
 

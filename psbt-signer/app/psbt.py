@@ -22,6 +22,12 @@ def finalize_psbt(psbt_bytes: bytes) -> PSBT:
 
     return psbt
 
+def encode_psbt(psbt_bytes: bytes) -> PSBT:
+    return
+
+def decode_psbt(psbt_bytes: bytes) -> PSBT:
+    return
+
 def extract_rawtx(psbt: PSBT) -> str:
     tx = psbt.extract_tx()
 

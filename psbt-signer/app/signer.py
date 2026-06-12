@@ -1,10 +1,9 @@
 from fastapi import FastAPI, Request, HTTPException
 
-from app.auth import verify_request, AuthError
-from app.psbt import decode_psbt, encode_psbt, extract_rawtx, finalize_psbt
-from app.engine import sign_psbt
+from auth.py import verify_request, AuthError
+from .psbt import decode_psbt, encode_psbt, extract_rawtx, finalize_psbt
+from .engine import sign_psbt
 import hashlib
-from Ttpm2.PyTpm2 import TPMError
 
 app = FastAPI()
 
@@ -33,8 +32,6 @@ async def sign(request: Request):
 
     try:
         signed = sign_psbt(psbt_bytes)
-    except TPMError as e:
-        raise HTTPException(503, str(e))
     except Exception as e:
         raise HTTPException(500, str(e))
     

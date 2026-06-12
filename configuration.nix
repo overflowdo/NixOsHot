@@ -8,6 +8,7 @@
     ./profiles/wireguard.nix
     ./profiles/signer_serv.nix
     ./profiles/base.nix
+    ./profiles/hmac.nix
   ];
 
   # HARDENING

@@ -39,7 +39,7 @@ in
       /etc/nixos/scripts/gen_wallet.sh
 
       echo "[*] building signer container"
-      docker compose up -d --build
+      docker compose build
 
       docker exec psbt-signer python3 /scripts/genWallet.py
       docker exec psbt-signer python3 /scripts/registerWallet.py
