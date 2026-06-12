@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request, HTTPException
 
-from .auth.py import verify_request, AuthError
+from .auth import verify_request, AuthError
 from .psbt import decode_psbt, encode_psbt, extract_rawtx, finalize_psbt
 from .engine import sign_psbt
 import hashlib

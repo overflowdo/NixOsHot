@@ -1,11 +1,11 @@
 { config, pkgs, ... }:
 
 let
-  secretFile = "/etc/signer/hmac.secret";
+  secretFile = "/var/lib/signer/hmac.secret";
 in
 {
   system.activationScripts.hmacSecret = ''
-    install -d -m 0750 /etc/signer
+    install -d -m 0750 /var/lib/signer
 
     if [ ! -f ${secretFile} ]; then
       echo "Generating HMAC secret..."
@@ -14,8 +14,4 @@ in
       chmod 0400 ${secretFile}
     fi
   '';
-
-  systemd.tmpfiles.rules = [
-    "d /etc/signer 0750 root root -"
-  ];
 }
