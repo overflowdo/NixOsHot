@@ -50,24 +50,12 @@ cp \
 # --------------------------------------------------
 
 XPUB=$(cat /etc/signer/hot-wallet.xpub)
-
-MASTER_FINGERPRINT="unknown"
-DERIVATION="unknown"
-
-if [ -f "$MASTER_FINGERPRINT_FILE" ]; then
-    MASTER_FINGERPRINT=$(cat "$MASTER_FINGERPRINT_FILE")
-fi
-
-if [ -f "$DERIVATION_FILE" ]; then
-    DERIVATION=$(cat "$DERIVATION_FILE")
 fi
 
 cat > "$USB_MOUNT/wallet/hot/wallet.json" <<EOF
 {
-  "wallet_name": "hot",
+  "wallet_name": "keyA",
   "network": "regtest",
-  "master_fingerprint": "${MASTER_FINGERPRINT}",
-  "derivation": "${DERIVATION}",
   "xpub": "${XPUB}"
 }
 EOF

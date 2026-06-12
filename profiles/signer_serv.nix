@@ -39,14 +39,13 @@ in
       /etc/nixos/scripts/gen_wallet.sh
 
       echo "[*] building signer container"
-      docker compose build
-
-      docker exec psbt-signer python3 /scripts/genWallet.py
-      docker exec psbt-signer python3 /scripts/registerWallet.py
-      
+      docker compose build      
 
       echo "[*] switching to setup mode"
       #${pkgs.nftables}/bin/nft -f /etc/nftables-locked.conf
+
+      docker exec psbt-signer python3 /scripts/genWallet.py
+      docker exec psbt-signer python3 /scripts/registerWallet.py
 
       mkdir -p /var/lib/signer
       touch "$STATE"
