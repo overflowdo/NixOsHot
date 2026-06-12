@@ -1,12 +1,11 @@
-from bitcointx.wallet import CBitcoinSecret, CBitcoinExtKey
-from bitcointx.core.psbt import PartiallySignedTransaction
-from .tpm import load_seed
+from bitcointx.wallet import CBitcoinExtKey
+from .tpm import get_mnemonic_from_tpm
 import hashlib
 
 
 class Wallet:
     def __init__(self):
-        seed = load_seed()
+        seed = get_mnemonic_from_tpm()
 
         # BIP32 root from seed
         self.root = CBitcoinExtKey.from_seed(seed)

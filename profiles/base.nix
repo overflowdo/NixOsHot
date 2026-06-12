@@ -44,6 +44,9 @@
         "d /psbt-signer/scripts 0770 root 1000 -"
         "d /psbt-signer/run/secrets 0770 root 1000 -"
 
+        "d /var/lib/signer 0770 root 1000 - -"
+        "d /var/lib/signer/wallets 0770 root 1000 - -"
+        "d /var/lib/signer/data 0770 root 1000 - -"
     ];
 
     systemd.user.services.thunar-exec-shell-scripts = {
