@@ -11,7 +11,7 @@ in
       echo "Generating HMAC secret..."
       umask 077
       openssl rand -hex 32 > ${secretFile}
-      chmod 0400 ${secretFile}
+      chmod 0440 ${secretFile}
     fi
   '';
 }
