@@ -1,8 +1,6 @@
 services:
   psbt-signer:
-    build:
-      context: /psbt-signer
-    image: psbt-signer:latest
+    build: ./psbt-signer
     restart: unless-stopped
     user: "1000:1000"
 
