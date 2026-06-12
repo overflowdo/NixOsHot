@@ -5,8 +5,8 @@ services:
     user: "1000:1000"
 
     volumes:
-      - /var/lib/signer/data:/data
-      - /var/lib/signer/wallets:/wallets
+      - /var/lib/signer/data:/run/data
+      - /var/lib/signer/wallets:/run/wallets
       - /etc/nixos/psbt-signer/app:/scripts:ro
       - /var/lib/signer/hmac.secret:/run/secrets/hmac.secret:ro
 
