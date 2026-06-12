@@ -8,7 +8,7 @@ services:
       - /var/lib/signer/data:/data
       - /var/lib/signer/wallets:/wallets
       - /etc/nixos/psbt-signer/app:/scripts:ro
-      - /etc/signer/hmac.secret:/run/secrets/hmac.secret:ro
+      - /var/lib/signer/hmac.secret:/run/secrets/hmac.secret:ro
 
     #command: ["python3", "/scripts/signer.py"]
 
