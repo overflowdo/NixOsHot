@@ -28,6 +28,10 @@
     "net.ipv4.conf.all.route_localnet" = 0;
   };
 
+  virtualisation.docker.enable = true;
+  virtualisation.podman.enable = true;
+  virtualisation.dockerCompat = true;
+
   security.lockKernelModules = true;
   boot.blacklistedKernelModules = [
     "firewire-core"
@@ -52,9 +56,7 @@
     wireguard-tools
     nftables
     openssl
-    (python3.withPackages (ps: with ps; [
-      pip
-    ]))
+    docker-compose
   ];
 
   security.tpm2 = {

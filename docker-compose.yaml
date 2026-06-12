@@ -1,0 +1,23 @@
+services:
+  psbt-signer:
+    build:
+      context: /psbt-signer
+    image: psbt-signer:latest
+    restart: unless-stopped
+    user: "1000:1000"
+
+    volumes:
+      - /var/lib/signer/data:/data
+      - /var/lib/signer/wallets:/wallets
+      - /etc/nixos/psbt-signer/app:/scripts:ro
+
+    command: ["python3", "/scripts/signer.py"]
+
+    environment:
+      NETWORK: regtest
+    devices:
+      - /dev/tpm0:/dev/tpm0
+      - /dev/tpmrm0:/dev/tpmrm0
+
+    ports:
+      - "8080:8080"
