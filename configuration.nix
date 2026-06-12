@@ -29,8 +29,6 @@
   };
 
   virtualisation.docker.enable = true;
-  virtualisation.podman.enable = true;
-  virtualisation.dockerCompat = true;
 
   security.lockKernelModules = true;
   boot.blacklistedKernelModules = [
