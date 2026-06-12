@@ -15,8 +15,11 @@
   networking.wireguard.enable = true;
 
   #DNS
-  services.resolved.enable = false;
-  environment.etc."resolv.conf".text = "nameserver 127.0.0.1";
+  #services.resolved.enable = false;
+  #environment.etc."resolv.conf".text = "nameserver 127.0.0.1";
+
+  networking.nameservers = [ "1.1.1.1" "8.8.8.8" ];
+  services.resolved.enable = true;
 
   systemd.services."-" = {
     serviceConfig = {
