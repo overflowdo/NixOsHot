@@ -5,10 +5,6 @@ let
 in
 {
 
-  systemd.tmpfiles.rules = [
-    "d /var/lib/signer 0770 root 1000 - -"
-  ];
-
   systemd.services.generate-hmac-secret = {
     description = "Generate HMAC Secret";
     wantedBy = [ "multi-user.target" ];
@@ -21,17 +17,19 @@ in
 
     script = ''
 
-      if [ ! -s "$secretFile" ]; then
+      SECRET_FILE="${secretFile}"
+
+      if [ ! -s "$SECRET_FILE" ]; then
         echo "Generating HMAC secret..."
 
         tmp=$(${pkgs.coreutils}/bin/mktemp)
         umask 077
         
         ${pkgs.openssl}/bin/openssl rand -hex 32 > "$tmp"
-        ${pkgs.coreutils}/bin/mv "$tmp" "$secretFile"
+        ${pkgs.coreutils}/bin/mv "$tmp" "$SECRET_FILE"
 
-        ${pkgs.coreutils}/bin/chown root:1000 "$secretFile"
-        ${pkgs.coreutils}/bin/chmod 0440 "$secretFile"
+        ${pkgs.coreutils}/bin/chown root:1000 "$SECRET_FILE"
+        ${pkgs.coreutils}/bin/chmod 0440 "$SECRET_FILE"
       fi
     '';
   };
