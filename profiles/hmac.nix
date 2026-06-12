@@ -24,12 +24,6 @@ in
         umask 077
         ${pkgs.openssl}/bin/openssl rand -hex 32 > "$tmp"
         mv "$tmp" "$SECRET_FILE"
-
-        ${pkgs.coreutils}/bin/chown root:1000 "$SECRET_FILE"
-        ${pkgs.coreutils}/bin/chmod 0440 "$SECRET_FILE"
-
-        ${pkgs.coreutils}/bin/chown root:1000 /var/lib/signer
-        ${pkgs.coreutils}/bin/chmod 0770 /var/lib/signer
       fi
     '';
   };
