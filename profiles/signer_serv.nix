@@ -33,22 +33,23 @@ in
       mkdir -p /var/lib/signer/data
       mkdir -p /var/lib/signer/wallets
 
-      chown -R 1000:1000 /var/lib/signer
+      chown -R root:root /var/lib/signer
       chmod 700 /var/lib/signer/data
       chmod 700 /var/lib/signer/wallets
 
-      /etc/nixos/scripts/gen_wallet.sh
-
       echo "[*] building signer container"
-      docker compose build      
+      docker compose build
+
 
       echo "[*] switching to setup mode"
       #${pkgs.nftables}/bin/nft -f /etc/nftables-locked.conf
 
       docker compose up
 
-      docker exec nixos-psbt-signer-1 python3 /scripts/genWallet.py
-      docker exec nixos-psbt-signer-1 python3 /scripts/registerWallet.py
+      #Wallet init
+      docker exec nixos-psbt-signer-1 python3 exec /psbt-signer/scripts/createSeed.py
+      docker exec nixos-psbt-signer-1 python3 exec /psbt-signer/scripts/genWallet.py
+      docker exec nixos-psbt-signer-1 python3 exec /psbt-signer/scripts/registerWallet.py
 
       mkdir -p /var/lib/signer
       touch "$STATE"

@@ -1,34 +1,12 @@
-import sys
 import os
 import json
-from hashlib import sha256, new
-import subprocess
-from bip_utils import (
-    Bip84,
-    Bip84Coins,
-    Bip44Changes
-)
 from embit import bip39
 from embit.bip32 import HDKey
 from embit.descriptor import Descriptor
 from embit.networks import NETWORKS
+from .tpm import get_mnemonic_from_tpm
 
 STATE_DIR = "/var/lib/signer"
-
-def get_mnemonic_from_tpm():
-    sealed_ctx = os.path.join(STATE_DIR, "sealed.ctx")
-    if not os.path.exists(sealed_ctx):
-        print("Fehler: TPM-Kontextdatei existiert nicht. Zuerst initialisieren!", file=sys.stderr)
-        sys.exit(1)
-
-    # tpm2_unseal ausführen, um die Phrase in den RAM zu holen
-    result = subprocess.run([
-        "tpm2_unseal", 
-        "-c", sealed_ctx,
-        "-p", "pcr:sha256:7"
-    ], capture_output=True, check=True)
-    
-    return result.stdout.decode('utf-8').strip()
 
 
 def main():

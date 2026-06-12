@@ -1,14 +1,21 @@
-def load_seed(path="/run/btc/seed") -> bytes:
+import sys
+import os
+from hashlib import sha256, new
+import subprocess
 
-    # Load TPM-unsealed BIP32 seed from RAM only.
+STATE_DIR = "/var/lib/signer"
 
-    with open(path, "rb") as f:
-        seed = f.read().strip()
+def get_mnemonic_from_tpm():
+    sealed_ctx = os.path.join(STATE_DIR, "sealed.ctx")
+    if not os.path.exists(sealed_ctx):
+        print("Fehler: TPM-Kontextdatei existiert nicht. Zuerst initialisieren", file=sys.stderr)
+        sys.exit(1)
 
+    # tpm2_unseal ausführen -> Phrase in RAM
+    result = subprocess.run([
+        "tpm2_unseal", 
+        "-c", sealed_ctx,
+        "-p", "pcr:sha256:7"
+    ], capture_output=True, check=True)
     
-    if not seed:
-        raise Exception("EMPTY_TPM_SEED")
-    if len(seed) not in (16, 32, 64):
-        raise Exception("INVALID_SEED_LENGTH")
-
-    return seed
+    return result.stdout.decode('utf-8').strip()
