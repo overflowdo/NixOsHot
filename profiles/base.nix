@@ -24,7 +24,7 @@
     environment.etc."scripts/format-USB.sh" = {
         source = ./files/format-USB.sh;
         mode   = "0755";
-
+    }
 
     #Wrappers
 
