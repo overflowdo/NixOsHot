@@ -68,10 +68,10 @@ cp /var/lib/signer/hmac.secret \
 
 
 # Btc-wallet
-cp /var/lib/signer/wallets/xpub.txt \
-  "$USB_MOUNT/wallet/hot/xpub.txt"
 cp /var/lib/signer/wallets/descriptor.public.txt \
   "$USB_MOUNT/wallet/hot/descriptor.public.txt"
+cp /var/lib/signer/public_key.pem \
+  "$USB_MOUNT/wallet/hot/public_key.pem"
 cp /var/lib/signer/wallets/metadata.json \
   "$USB_MOUNT/wallet/hot/metadata.json"
 

@@ -4,6 +4,7 @@ import subprocess
 import os
 import json
 import sys
+from embit.ec import PublicKey
 
 STATE_DIR = "/var/lib/signer"
 os.makedirs(STATE_DIR, exist_ok=True)
@@ -18,6 +19,8 @@ PRIMARY_CTX = os.path.join(STATE_DIR, "primary.ctx")
 KEY_CTX = os.path.join(STATE_DIR, "signing_key.ctx")
 
 PUBLIC_KEY_FILE = os.path.join(STATE_DIR, "public_key.pem")
+DESCRIPTOR_FILE = os.path.join(STATE_DIR, "descriptor.public.txt")
+METADATA_FILE = os.path.join(STATE_DIR, "metadata.json")
 
 print("Creating TPM primary key...")
 
@@ -68,3 +71,49 @@ with open(os.path.join(STATE_DIR, "metadata.json"), "w") as f:
     }, f, indent=2)
 
 print("OK: TPM native key created")
+
+
+
+#pub descitpor für sparrow multisig
+
+
+with open(PUBLIC_KEY_FILE, "r") as f:
+    pem = f.read()
+
+pub = PublicKey.from_pem(pem)
+
+fingerprint = pub.hash160()[:4].hex()
+
+
+descriptor = f"wpkh({pub.to_string()})"
+
+with open(DESCRIPTOR_FILE, "w") as f:
+    f.write(descriptor)
+
+
+metadata = {
+    "wallet_type": "tpm-native",
+    "network": "regtest",
+    "model": "hsm-native",
+
+    "fingerprint": fingerprint,
+
+    "keys": [
+        {
+            "type": "single-sig",
+            "format": "wpkh",
+            "pubkey": pub.to_string(),
+            "pem_file": PUBLIC_KEY_FILE
+        }
+    ],
+
+    "descriptor_file": DESCRIPTOR_FILE,
+
+    "note": "no seed, no xprv, TPM-only key"
+}
+
+with open(METADATA_FILE, "w") as f:
+    json.dump(metadata, f, indent=2)
+
+print("OK: TPM native wallet created")
+print("Descriptor:", descriptor)

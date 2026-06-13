@@ -3,11 +3,12 @@
 from fastapi import FastAPI, Request, HTTPException
 
 from .auth import verify_request, AuthError
-from psbt import (
+from .psbt import (
     decode_psbt,
     encode_psbt,
     finalize_psbt,
     extract_rawtx,
+    serialize_psbt,
     PSBTError
 )
 from .engine import sign_psbt
@@ -88,7 +89,7 @@ async def sign(request: Request):
             response.update({
                 "psbt_type": "psbt",
                 "signed_psbt_base64": encode_psbt(psbt),
-                "sha256": hashlib.sha256(psbt.serialize()).hexdigest()
+                "sha256": hashlib.sha256(serialize_psbt(psbt)).hexdigest()
             })
         except PSBTError as e:
             raise HTTPException(500, str(e))

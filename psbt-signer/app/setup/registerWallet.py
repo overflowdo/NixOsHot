@@ -53,16 +53,6 @@ with open(PUBLIC_KEY_FILE) as f:
     pubkey = f.read().strip()
 
 desc = f"wpkh({pubkey})"
-'''
-rpc = [
-    "bitcoin-cli",
-    "-regtest",
-    "importdescriptors",
-    json.dumps([{
-        "desc": descriptor,
-        "timestamp": "now"
-    }])
-]
 
 print("3. Descriptoren registrieren ...")
 print("createwallet in regtest")
@@ -81,22 +71,7 @@ rpc_call(
     rpc_id="createwallet"
 )
 
-# Descriptor laden
-desc = Path(DESC_FILE).read_text().strip()
-
-print("load descriptor checksum")
-# Descriptor mit Checksum versehen
-desc_info = rpc_call(
-    RPC_URL,
-    "getdescriptorinfo",
-    [desc],
-    rpc_id="checksum"
-)
-
-desc = desc_info["descriptor"]
-'''
-
-print("Import descriptor with checksum")
+print("Import descriptor")
 # Descriptor importieren
 rpc_call(
     WALLET_RPC_URL,
