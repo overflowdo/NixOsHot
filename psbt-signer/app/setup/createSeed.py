@@ -48,7 +48,6 @@ def main():
     # A. Starte eine Autorisierungssitzung (Trial Session)
     subprocess.run([
         "tpm2_startauthsession",
-        "--trial",
         "-S", session_ctx
     ], check=True)
 

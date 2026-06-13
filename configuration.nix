@@ -50,6 +50,9 @@
   # PACKAGES
   environment.systemPackages = with pkgs; [
     tpm2-tools
+    tpm2-tss
+    tpm2-tss-engine
+    pkg-config
     git
     jq
     wireguard-tools
