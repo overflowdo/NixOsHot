@@ -4,10 +4,17 @@ from embit import bip39
 from embit.bip32 import HDKey
 from embit.descriptor import Descriptor
 from embit.networks import NETWORKS
-from ..tpm import get_mnemonic_from_tpm
+import sys
+
 
 STATE_DIR = "/var/lib/signer"
 
+# Errechnet den Pfad zu 'scripts/' (ein Ordner über 'setup/')
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PARENT_DIR = os.path.dirname(SCRIPT_DIR)
+sys.path.append(PARENT_DIR)
+
+from tpm import get_mnemonic_from_tpm
 
 def main():
     NETWORK = "regtest"
