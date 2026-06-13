@@ -3,7 +3,7 @@
 from fastapi import FastAPI, Request, HTTPException
 
 from .auth import verify_request, AuthError
-from psbt import (
+from .psbt import (
     decode_psbt,
     encode_psbt,
     finalize_psbt,
@@ -16,7 +16,7 @@ import hashlib
 
 app = FastAPI()
 
-SIGNING_SECRET = open("/psbt-sigern/run/secrets/hmac.secret").read().strip()
+SIGNING_SECRET = open("/psbt-signer/run/secrets/hmac.secret").read().strip()
 
 
 @app.post("/sign")

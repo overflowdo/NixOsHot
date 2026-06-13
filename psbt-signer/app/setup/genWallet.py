@@ -16,11 +16,14 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.dirname(SCRIPT_DIR)
 sys.path.append(PARENT_DIR)
 
-from tpm import get_mnemonic_from_tpm
+from tpm import get_entropy_from_tpm
+
+NETWORK = "test"
 
 
-mnemonic = "media ride cigar habit this tuna chair island salt bubble famous zebra"
-mnemonic = get_mnemonic_from_tpm()
+entropy = get_entropy_from_tpm()
+mnemonic = bip39.mnemonic_from_bytes(entropy)
+del entropy
 
 derivation_path = "m/84h/0h/0h" 
 
@@ -28,19 +31,23 @@ seed = bip39.mnemonic_to_seed(mnemonic)
 del mnemonic
 
 #Angabe testnet zum bilden tpub statt xpub
-network_config = NETWORKS["test"]
+network_config = NETWORKS[NETWORK]
 
 root_key = HDKey.from_seed(seed)
+del seed
 
 fingerprint_hex = root_key.fingerprint.hex()
 
+
 account_key = root_key.derive(derivation_path)
+del root_key
 
 #xpub key mit tpub identifier
 xpub_string = account_key.to_public().to_string(version=network_config["xpub"])
 
 path_cleaned = derivation_path.replace("m/", "")
 descriptor_format = f"wpkh([{fingerprint_hex}/{path_cleaned}]{xpub_string}/0/*)"
+del fingerprint_hex
 
 
 desc_obj = Descriptor.from_string(descriptor_format)

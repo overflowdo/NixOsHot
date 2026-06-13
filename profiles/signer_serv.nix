@@ -33,7 +33,7 @@ in
       docker compose up -d
 
       #Wallet init
-      docker exec nixos-psbt-signer-1 python3 /psbt-signer/scripts/setup/createSeed.py
+      docker exec nixos-psbt-signer-1 python3 /psbt-signer/scripts/setup/genSeed.py
       docker exec nixos-psbt-signer-1 python3 /psbt-signer/scripts/setup/genWallet.py
       docker exec nixos-psbt-signer-1 python3 /psbt-signer/scripts/setup/registerWallet.py
 

@@ -39,9 +39,11 @@ mkdir -p "$USB_MOUNT/wallet/hot"
 
 #File test
 FILES=(
-  "/etc/wireguard/public.key"
+  "/var/lib/wireguard/public.key"
   "/var/lib/signer/hmac.secret"
-  "/var/lib/signer/wallets/hot-wallet.xpub"
+  "/var/lib/signer/wallets/xpub.txt"
+  "/var/lib/signer/wallets/descriptor.public.txt"
+  "/var/lib/signer/wallets/metadata.json"
 )
 
 for f in "${FILES[@]}"; do
@@ -84,5 +86,7 @@ echo "  communication/wireguard-public.key"
 echo "  communication/hmac.secret"
 echo "  wallet/hot/descriptor.public.txt"
 echo "  wallet/hot/metadata.json"
+echo ""
+echo "Unmount USB"
 
 umount "$USB_MOUNT"
