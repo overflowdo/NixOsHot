@@ -67,7 +67,6 @@ def main():
         "tpm2_create", 
         "-C", primary_ctx,
         "-g", "sha256",
-        "-G", "keyedhash", 
         "-u", seal_pub,
         "-r", seal_priv,
         "-L", policy_file,
