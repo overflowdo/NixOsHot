@@ -1,6 +1,11 @@
 { config, pkgs, lib, ... }:
 
 {
+    time.timeZone = "Europe/Berlin";
+    i18n.defaultLocale = "de_DE.UTF-8";
+    console.keyMap = "de";
+
+    networking.hostName = "hot-keyA";
 
     #User mit Sudo
     users.users.user = {
@@ -11,7 +16,6 @@
     };
 
     security.sudo.wheelNeedsPassword = true;
-
 
     environment.etc."scripts/wgHMAC_export.sh" = {
         source = ./files/wgHMAC_export.sh;
@@ -24,7 +28,7 @@
     environment.etc."scripts/format-USB.sh" = {
         source = ./files/format-USB.sh;
         mode   = "0755";
-    }
+    };
 
     #Wrappers
 
@@ -69,13 +73,13 @@
     description = "Thunar: execute shell scripts by default";
     wantedBy = [ "graphical-session.target" ];
     serviceConfig = {
-      Type = "oneshot";
-      ExecStart = ''
+        Type = "oneshot";
+        ExecStart = ''
         ${pkgs.xfce.xfconf}/bin/xfconf-query \
-          --channel thunar \
-          --property /misc-exec-shell-scripts-by-default \
-          --create --type bool --set true
-      '';
+            --channel thunar \
+            --property /misc-exec-shell-scripts-by-default \
+            --create --type bool --set true
+        '';
     };
-  };
+    };
 }
