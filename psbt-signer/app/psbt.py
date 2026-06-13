@@ -1,5 +1,7 @@
-import io
+#!/usr/bin/env python3
+
 from embit.psbt import PSBT
+import base64
 
 class PSBTError(Exception):
     pass
@@ -11,24 +13,34 @@ def load_psbt(psbt_bytes: bytes) -> PSBT:
     except Exception as e:
         raise PSBTError(f"INVALID_PSBT: {e}")
 
+def finalize_psbt(psbt: PSBT) -> PSBT:
+    try:
+        psbt.finalize()
+        return psbt
+    except Exception as e:
+        raise PSBTError(f"FINALIZE_FAILED: {e}")
 
-def serialize_psbt(psbt) -> bytes:
-    return psbt.serialize()
 
-def finalize_psbt(psbt_bytes: bytes) -> PSBT:
-    psbt = PSBT.parse(psbt_bytes)
+def encode_psbt(psbt: PSBT) -> str:
+    try:
+        return base64.b64encode(psbt.serialize()).decode()
+    except Exception as e:
+        raise PSBTError(f"ENCODE_FAILED: {e}")
 
-    psbt.finalize()  # important step
-
-    return psbt
-
-def encode_psbt(psbt_bytes: bytes) -> PSBT:
-    return
-
-def decode_psbt(psbt_bytes: bytes) -> PSBT:
-    return
+def decode_psbt(psbt_b64: str) -> PSBT:
+    try:
+        raw = base64.b64decode(psbt_b64)
+        return PSBT.parse(raw)
+    except Exception as e:
+        raise PSBTError(f"DECODE_FAILED: {e}")
+    
 
 def extract_rawtx(psbt: PSBT) -> str:
-    tx = psbt.extract_tx()
-
-    return tx.serialize().hex()
+    if not psbt.is_final():
+        raise PSBTError("PSBT not finalized")
+    
+    try:
+        tx = psbt.extract_tx()
+        return tx.serialize().hex()
+    except Exception as e:
+        raise PSBTError(f"EXTRACT_FAILED: {e}")

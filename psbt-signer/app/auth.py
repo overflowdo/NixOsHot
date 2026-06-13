@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import hmac
 import hashlib
 import time
@@ -9,14 +11,14 @@ class AuthError(Exception):
 def verify_request(secret: str, body: bytes, ts: str, nonce: str, sig: str):
     # 1. replay protection (time window)
     now = int(time.time())
-    if abs(now - int(ts)) > 10:
+    if abs(now - int(ts)) > 30:    #replay schutz
         raise AuthError("STALE_REQUEST")
 
     # 2. HMAC verification
     msg = ts.encode() + nonce.encode() + body
 
     expected = hmac.new(
-        secret.encode(),
+        bytes.fromhex(secret),
         msg,
         hashlib.sha256
     ).hexdigest()

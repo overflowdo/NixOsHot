@@ -30,16 +30,15 @@ in
       echo "[*] building signer container"
       docker compose build
 
-
-      echo "[*] switching to setup mode"
-      #${pkgs.nftables}/bin/nft -f /etc/nftables-locked.conf
-
       docker compose up -d
 
       #Wallet init
       docker exec nixos-psbt-signer-1 python3 /psbt-signer/scripts/setup/createSeed.py
       docker exec nixos-psbt-signer-1 python3 /psbt-signer/scripts/setup/genWallet.py
       docker exec nixos-psbt-signer-1 python3 /psbt-signer/scripts/setup/registerWallet.py
+
+      echo "[*] switching to setup mode"
+      ${pkgs.nftables}/bin/nft -f /etc/nftables-locked.conf
 
       mkdir -p /var/lib/signer
       touch "$STATE"

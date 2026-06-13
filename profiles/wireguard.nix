@@ -13,16 +13,16 @@
     };
 
     script = ''
-      mkdir -p /var/lib/wireguard/private.key
+      umask 077
+      mkdir -p /var/lib/wireguard/
+      
+      PRIVATE_KEY_FILE="/var/lib/wireguard/private.key"
+      PUBLIC_KEY_FILE="/var/lib/wireguard/public.key"
 
-      if [ ! -f /var/lib/wireguard/private.key ]; then
-        umask 077
-
-        ${pkgs.wireguard-tools}/bin/wg genkey \
-          | tee /var/lib/wireguard/private.key \
-          | ${pkgs.wireguard-tools}/bin/wg pubkey \
-          > /var/lib/wireguard/private.key
+      if [ ! -f "$PRIVATE_KEY_FILE" ]; then
+        wg genkey | tee "$PRIVATE_KEY_FILE" | wg pubkey > "$PUBLIC_KEY_FILE"
       fi
+      
     '';
   };
 

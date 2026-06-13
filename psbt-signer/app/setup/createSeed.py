@@ -1,96 +1,70 @@
 #!/usr/bin/env python3
-import os
-import sys
+
 import subprocess
-from embit import bip39
+import os
+import json
+import sys
 
 STATE_DIR = "/var/lib/signer"
-INIT_MARKER = os.path.join(STATE_DIR, "initialized")
+os.makedirs(STATE_DIR, exist_ok=True)
 
-def main():
+# Errechnet den Pfad zu 'scripts/' (ein Ordner über 'setup/')
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PARENT_DIR = os.path.dirname(SCRIPT_DIR)
+sys.path.append(PARENT_DIR)
 
-    os.makedirs(STATE_DIR, exist_ok=True)
-    os.chmod(STATE_DIR, 0o700)
+PRIMARY_CTX = os.path.join(STATE_DIR, "primary.ctx")
 
-    if os.path.exists(INIT_MARKER):
-        print("Signer bereits initialisiert.")
-        sys.exit(0)
+KEY_CTX = os.path.join(STATE_DIR, "signing_key.ctx")
 
+PUBLIC_KEY_FILE = os.path.join(STATE_DIR, "public_key.pem")
 
-    print("1. Mnemonic Phrase (24 Wörter) generieren...")
-    # Entropy erzeugen
-    entropy = os.urandom(32)
-    # In BIP-39 Wörter umwandeln
-    mnemonic_phrase = bip39.mnemonic_from_bytes(entropy)
-    print(f"Generierte Phrase (wird NICHT TPM gespeichert, spätere Bildung aus Entropie):\n{mnemonic_phrase}")
-    del mnemonic_phrase
-    
-    
+print("Creating TPM primary key...")
 
-    print("TPM Primary Key")
-    primary_ctx = os.path.join(STATE_DIR, "primary.ctx")
-    subprocess.run([
-        "tpm2_createprimary",
-        "-C", "o",
-        "-g", "sha256",
-        "-G", "ecc", 
-        "-c", primary_ctx
-    ], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+subprocess.run([
+    "tpm2_createprimary",
+    "-C", "o",
+    "-g", "sha256",
+    "-G", "ecc",
+    "-c", PRIMARY_CTX
+], check=True)
 
-    print("versiegeln")
-    seal_pub = os.path.join(STATE_DIR, "seal.pub")
-    seal_priv = os.path.join(STATE_DIR, "seal.priv")
-    sealed_ctx = os.path.join(STATE_DIR, "sealed.ctx")
+print("Creating NON-EXPORTABLE signing key inside TPM...")
 
+# KEY IS CREATED INSIDE TPM AND NEVER EXPORTED
+subprocess.run([
+    "tpm2_create",
+    "-C", PRIMARY_CTX,
+    "-G", "ecc",
+    "-u", os.path.join(STATE_DIR, "key.pub"),
+    "-r", os.path.join(STATE_DIR, "key.priv"),
+    "-c", KEY_CTX
+], check=True)
 
-    #PCR als Autoriserung nehmen
-    session_ctx = os.path.join(STATE_DIR, "session.ctx")
-    policy_file = os.path.join(STATE_DIR, "pcr.policy")
+print("Loading persistent key...")
 
-    # A. Starte eine Autorisierungssitzung (Trial Session)
-    subprocess.run([
-        "tpm2_startauthsession",
-        "-S", session_ctx
-    ], check=True)
+result = subprocess.run([
+    "tpm2_evictcontrol",
+    "-C", "o",
+    "-c", KEY_CTX
+], capture_output=True, text=True, check=True)
 
-    # B. Berechne die Policy basierend auf dem aktuellen Zustand von PCR 7
-    subprocess.run([
-        "tpm2_policypcr", "-S", session_ctx, "-l", "sha256:7", "-L", policy_file
-    ], check=True)
+print("Extracting PUBLIC KEY ONLY...")
 
-    # C. Sitzungskontext schließen und aufräumen
-    subprocess.run(["tpm2_flushcontext", session_ctx], check=True)
-    if os.path.exists(session_ctx):
-        os.remove(session_ctx)
+# export public key only
+subprocess.run([
+    "tpm2_readpublic",
+    "-c", KEY_CTX,
+    "-f", "pem",
+    "-o", PUBLIC_KEY_FILE
+], check=True)
 
+with open(os.path.join(STATE_DIR, "metadata.json"), "w") as f:
+    json.dump({
+        "tpm_key": "ecc",
+        "model": "hsm-native",
+        "public_key_file": PUBLIC_KEY_FILE,
+        "note": "no seed, no xprv, TPM-only key"
+    }, f, indent=2)
 
-
-    process = subprocess.Popen([
-        "tpm2_create", 
-        "-C", primary_ctx,
-        "-g", "sha256",
-        "-u", seal_pub,
-        "-r", seal_priv,
-        "-L", policy_file,
-        "-i", "-",
-        "-c", sealed_ctx
-    ], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-
-    # Daten einspeisen und ausführen
-    _, stderr = process.communicate(input=entropy)
-
-    del entropy
-
-    if process.returncode != 0:
-        print(f"Fehler beim Versiegeln im TPM: {stderr.decode()}", file=sys.stderr)
-        sys.exit(1)
-
-
-
-    with open(INIT_MARKER, "w") as f:
-        f.write("1")
-
-    print("Entropie im TPM versiegelt und initialisiert.")
-
-if __name__ == "__main__":
-    main()
+print("OK: TPM native key created")

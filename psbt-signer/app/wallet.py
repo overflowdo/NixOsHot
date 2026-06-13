@@ -1,29 +1,11 @@
-from bitcointx.wallet import CBitcoinExtKey
-from .tpm import get_mnemonic_from_tpm
-import hashlib
-
-
 class Wallet:
-    def __init__(self):
-        seed = get_mnemonic_from_tpm()
+    def __init__(self, tpm, pubkey):
+        self.tpm = tpm
+        self.pubkey = pubkey
 
-        # BIP32 root from seed
-        self.root = CBitcoinExtKey.from_seed(seed)
+    def sign_digest(self, digest: bytes):
+        return self.tpm.sign(digest)
 
-    def derive_key(self, path: str):
-
-        key = self.root
-
-        for level in path.split("/")[1:]:
-            hardened = level.endswith("'")
-            index = int(level.replace("'", ""))
-
-            if hardened:
-                index += 0x80000000
-
-            key = key.ChildKey(index)
-
-        return key
-
-    def sign_input(self, psbt, input_index: int, privkey):
-        psbt.sign_input(input_index, privkey)
+    def get_descriptor(self):
+        # simple single-key descriptor
+        return f"wpkh({self.pubkey})"

@@ -1,20 +1,28 @@
 from .psbt import load_psbt, serialize_psbt
-from .wallet import Wallet
+from .sigHash import get_sighash
+from .psbtPolicy import PSBTPolicy
 
-def sign_psbt(psbt_bytes: bytes):
+
+def sign_psbt(psbt_bytes: bytes, wallet):
     psbt = load_psbt(psbt_bytes)
 
-    wallet = Wallet()
+    # 1. POLICY CHECK (SECURITY GATE)
+    policy = PSBTPolicy(wallet)
+    policy.validate(psbt)
 
-    my_fingerprint = wallet.fingerprint()
-
-    for index, inp in enumerate(psbt.inputs):
+    # 2. SIGNING LOOP
+    for i, inp in enumerate(psbt.inputs):
 
         if not wallet.input_belongs_to_me(inp):
             continue
 
-        key = wallet.derive_for_input(inp)
+        # 2.1 compute digest (CRITICAL PART)
+        digest = get_sighash(psbt, i)
 
-        psbt.sign_input(index, key)
+        # 2.2 TPM signing (NO KEYS LEAVING TPM)
+        sig = wallet.sign_input_digest(digest)
+
+        # 2.3 attach signature
+        psbt.add_signature(i, sig)
 
     return serialize_psbt(psbt)
