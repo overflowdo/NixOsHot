@@ -4,7 +4,7 @@ from embit import bip39
 from embit.bip32 import HDKey
 from embit.descriptor import Descriptor
 from embit.networks import NETWORKS
-from .tpm import get_mnemonic_from_tpm
+from ..tpm import get_mnemonic_from_tpm
 
 STATE_DIR = "/var/lib/signer"
 

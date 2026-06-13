@@ -22,8 +22,10 @@ def main():
     entropy = os.urandom(32)
     # In BIP-39 Wörter umwandeln
     mnemonic_phrase = bip39.mnemonic_from_bytes(entropy)
+    print(f"Generierte Phrase (wird NICHT TPM gespeichert, spätere Bildung aus Entropie):\n{mnemonic_phrase}")
+    del mnemonic_phrase
     
-    del entropy
+    
 
     print("TPM Primary Key")
     primary_ctx = os.path.join(STATE_DIR, "primary.ctx")
@@ -75,20 +77,20 @@ def main():
     ], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
 
     # Daten einspeisen und ausführen
-    _, stderr = process.communicate(input=mnemonic_phrase.encode('utf-8'))
+    _, stderr = process.communicate(input=entropy)
+
+    del entropy
 
     if process.returncode != 0:
         print(f"Fehler beim Versiegeln im TPM: {stderr.decode()}", file=sys.stderr)
         sys.exit(1)
 
 
-    del mnemonic_phrase
-
 
     with open(INIT_MARKER, "w") as f:
         f.write("1")
 
-    print("Mnemonic im TPM versiegelt und initialisiert.")
+    print("Entropie im TPM versiegelt und initialisiert.")
 
 if __name__ == "__main__":
     main()
