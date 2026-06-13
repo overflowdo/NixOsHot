@@ -19,7 +19,6 @@ sys.path.append(PARENT_DIR)
 from tpm import get_mnemonic_from_tpm
 
 
-
 mnemonic = "media ride cigar habit this tuna chair island salt bubble famous zebra"
 mnemonic = get_mnemonic_from_tpm()
 

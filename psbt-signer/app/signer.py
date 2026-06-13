@@ -3,12 +3,12 @@
 from fastapi import FastAPI, Request, HTTPException
 
 from .auth import verify_request, AuthError
-from .psbt import (
+from psbt import (
     decode_psbt,
     encode_psbt,
     finalize_psbt,
     extract_rawtx,
-    serialize_psbt,
+    psbt_serialize,
     PSBTError
 )
 from .engine import sign_psbt
@@ -16,7 +16,7 @@ import hashlib
 
 app = FastAPI()
 
-SIGNING_SECRET = open("/var/lib/signer/hmac.secret").read().strip()
+SIGNING_SECRET = open("/psbt-sigern/run/secrets/hmac.secret").read().strip()
 
 
 @app.post("/sign")
@@ -49,14 +49,14 @@ async def sign(request: Request):
 
     #Decode
     try:
-        psbt_bytes = decode_psbt(psbt_b64)
+        psbt = decode_psbt(psbt_b64)
     except PSBTError as e:
         raise HTTPException(400, str(e))
 
 
     #Sign
     try:
-        signed = sign_psbt(psbt_bytes)
+        psbt_signed = sign_psbt(psbt)
     except Exception as e:
         raise HTTPException(500, str(e))
     
@@ -66,20 +66,20 @@ async def sign(request: Request):
         # FINALIZE PSBT
         try:
             #extract directly
-            raw_tx = extract_rawtx(psbt)
+            raw_tx_final = extract_rawtx(psbt_signed)
 
         except PSBTError:
             # fallback: finalize then extract
             try:
-                psbt = finalize_psbt(psbt)
-                raw_tx = extract_rawtx(psbt)
+                psbt_final = finalize_psbt(psbt_signed)
+                raw_tx_final = extract_rawtx(psbt_final)
             except Exception as e:
                 raise HTTPException(500, f"FINALIZE_OR_EXTRACT_FAILED: {e}")
         
         response.update({
             "psbt_type": "rawtx",
-            "rawtx_hex": raw_tx,
-            "sha256": hashlib.sha256(bytes.fromhex(raw_tx)).hexdigest()
+            "rawtx_hex": raw_tx_final,
+            "sha256": hashlib.sha256(bytes.fromhex(raw_tx_final)).hexdigest()
         })
     
     #Refill workflow
@@ -88,8 +88,8 @@ async def sign(request: Request):
         try:
             response.update({
                 "psbt_type": "psbt",
-                "signed_psbt_base64": encode_psbt(psbt),
-                "sha256": hashlib.sha256(serialize_psbt(psbt)).hexdigest()
+                "signed_psbt_base64": encode_psbt(psbt_signed),
+                "sha256": hashlib.sha256(psbt_serialize(psbt_signed)).hexdigest()
             })
         except PSBTError as e:
             raise HTTPException(500, str(e))

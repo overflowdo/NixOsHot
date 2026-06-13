@@ -1,28 +1,45 @@
-from .psbt import load_psbt, serialize_psbt
-from .sigHash import get_sighash
-from .psbtPolicy import PSBTPolicy
+from .psbt import psbt_serialize
+from .psbtPolicy import validate
+from .tpm import get_entropy_from_tpm
+from embit import bip39, bip32
+from embit.networks import NETWORKS
+from embit.psbt import PSBT
 
+NETWORK = "regtest"
 
-def sign_psbt(psbt_bytes: bytes, wallet):
-    psbt = load_psbt(psbt_bytes)
+def sign_psbt(psbt: PSBT):
 
     # 1. POLICY CHECK (SECURITY GATE)
-    policy = PSBTPolicy(wallet)
-    policy.validate(psbt)
+    validate(psbt)
 
-    # 2. SIGNING LOOP
-    for i, inp in enumerate(psbt.inputs):
+    entropy = get_entropy_from_tpm()
 
-        if not wallet.input_belongs_to_me(inp):
+    mnemonic = bip39.mnemonic_from_bytes(entropy)
+
+    seed = bip39.mnemonic_to_seed(mnemonic)
+
+    root = bip32.HDKey.from_seed(
+        seed,
+        version=NETWORKS[NETWORK]["xprv"]
+    )
+
+    signed = 0
+
+    for inp in psbt.inputs:
+
+        if not inp.bip32_derivations:
             continue
 
-        # 2.1 compute digest (CRITICAL PART)
-        digest = get_sighash(psbt, i)
+        for pubkey, derivation in inp.bip32_derivations.items():
 
-        # 2.2 TPM signing (NO KEYS LEAVING TPM)
-        sig = wallet.sign_input_digest(digest)
+            if derivation.fingerprint != root.my_fingerprint:
+                continue
 
-        # 2.3 attach signature
-        psbt.add_signature(i, sig)
+            key = root.derive(
+                derivation.derivation
+            )
 
-    return serialize_psbt(psbt)
+            if inp.sign_with(key):
+                signed += 1
+
+    return psbt

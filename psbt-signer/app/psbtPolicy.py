@@ -2,48 +2,40 @@ class PSBTPolicyError(Exception):
     pass
 
 
-class PSBTPolicy:
+def check_structure(psbt):
+    if psbt.tx is None:
+        raise PSBTPolicyError(
+            "missing transaction"
+        )
 
-    def __init__(self, wallet):
-        self.wallet = wallet
+    if len(psbt.inputs) == 0:
+        raise PSBTPolicyError(
+            "no inputs"
+        )
 
-    def validate(self, psbt):
-        self._check_inputs(psbt)
-        self._check_outputs(psbt)
-        self._check_structure(psbt)
 
-    def _check_inputs(self, psbt):
-        for i, inp in enumerate(psbt.inputs):
+def check_inputs(psbt):
+    for i, inp in enumerate(psbt.inputs):
+        if inp.witness_utxo is None:
+            raise PSBTPolicyError(
+                f"INPUT {i}: missing witness_utxo"
+            )
+        
+        if not inp.bip32_derivations:
+            raise PSBTPolicyError(
+                f"INPUT {i}: missing derivation"
+            )
 
-            if inp.witness_utxo is None:
-                raise PSBTPolicyError("SegWit requires witness_utxo")
-            
-            if not inp.witness_utxo.script_pubkey.startswith(b"\x00"):
-                raise PSBTPolicyError("not native segwit")
 
-            if not self.wallet.input_belongs_to_me(inp):
-                continue
+def check_outputs(psbt):
+    for i, out in enumerate(psbt.tx.vout):
+        if out.value <= 0:
+            raise PSBTPolicyError(
+                f"OUTPUT {i}: invalid value"
+            )
 
-            if not inp.bip32_derivation:
-                raise PSBTPolicyError(f"INPUT {i}: missing derivation path")
 
-    def _check_outputs(self, psbt):
-        total_out = 0
-
-        for out in psbt.tx.vout:
-
-            # basic sanity check (extend later!)
-            if out.value <= 0:
-                raise PSBTPolicyError("invalid output value")
-
-            total_out += out.value
-
-        if total_out == 0:
-            raise PSBTPolicyError("invalid transaction: zero output value")
-
-    def _check_structure(self, psbt):
-        if len(psbt.inputs) == 0:
-            raise PSBTPolicyError("no inputs in PSBT")
-
-        if psbt.tx is None:
-            raise PSBTPolicyError("missing base transaction")
+def validate(psbt):
+    check_structure(psbt)
+    check_inputs(psbt)
+    check_outputs(psbt)

@@ -2,7 +2,7 @@
 
 import json
 from pathlib import Path
-import os
+
 import requests
 
 STATE_DIR = "/psbt-signer/run/state"
@@ -15,8 +15,6 @@ RPC_PORT = 18443
 
 RPC_URL = f"http://{RPC_HOST}:{RPC_PORT}"
 WALLET_RPC_URL = f"{RPC_URL}/wallet/keyA"
-
-PUBLIC_KEY_FILE = os.path.join(STATE_DIR, "public_key.pem")
 
 
 def rpc_call(url, method, params=None, rpc_id="python"):
@@ -49,11 +47,6 @@ def rpc_call(url, method, params=None, rpc_id="python"):
 
 
 
-with open(PUBLIC_KEY_FILE) as f:
-    pubkey = f.read().strip()
-
-desc = f"wpkh({pubkey})"
-
 print("3. Descriptoren registrieren ...")
 print("createwallet in regtest")
 # Wallet erzeugen
@@ -71,7 +64,21 @@ rpc_call(
     rpc_id="createwallet"
 )
 
-print("Import descriptor")
+# Descriptor laden
+desc = Path(DESC_FILE).read_text().strip()
+
+print("load descriptor checksum")
+# Descriptor mit Checksum versehen
+desc_info = rpc_call(
+    RPC_URL,
+    "getdescriptorinfo",
+    [desc],
+    rpc_id="checksum"
+)
+
+desc = desc_info["descriptor"]
+
+print("Import descriptor with checksum")
 # Descriptor importieren
 rpc_call(
     WALLET_RPC_URL,

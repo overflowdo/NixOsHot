@@ -45,5 +45,5 @@ def extract_rawtx(psbt: PSBT) -> str:
     except Exception as e:
         raise PSBTError(f"EXTRACT_FAILED: {e}")
     
-def serialize_psbt(psbt) -> bytes:
-    return psbt.serialize()
+def psbt_serialize(psbt: PSBT) -> str:
+        return psbt.serialize()
