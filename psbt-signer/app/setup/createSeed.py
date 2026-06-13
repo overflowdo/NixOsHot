@@ -47,7 +47,9 @@ def main():
 
     # A. Starte eine Autorisierungssitzung (Trial Session)
     subprocess.run([
-        "tpm2_startauthsession", "-S", session_ctx
+        "tpm2_startauthsession",
+        "--trial",
+        "-S", session_ctx
     ], check=True)
 
     # B. Berechne die Policy basierend auf dem aktuellen Zustand von PCR 7
@@ -60,11 +62,6 @@ def main():
     if os.path.exists(session_ctx):
         os.remove(session_ctx)
 
-    subprocess.run([
-        "tpm2_policypcr",
-        "-l", "sha256:7",
-        "-L", policy_file
-    ], check=True)
 
 
     process = subprocess.Popen([

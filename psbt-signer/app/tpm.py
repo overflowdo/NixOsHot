@@ -17,20 +17,27 @@ def get_mnemonic_from_tpm():
 
     # Aktive Policy-Sitzung starten
     subprocess.run([
-        "tpm2_startauthsession", "--policy-session", "-S", session_ctx
+        "tpm2_startauthsession", 
+        "--policy-session", 
+        "-S", session_ctx
     ], check=True)
 
     try:
         #aktuellen PCR-Wert in die Sitzung laden.
         # PCR 7 Fehlschlagen bei Änderung
         subprocess.run([
-            "tpm2_policypcr", "-S", session_ctx, "-l", "sha256:7", "-L", policy_file
+            "tpm2_policypcr", 
+            "-S", session_ctx, 
+            "-l", "sha256:7", 
+            "-L", policy_file
         ], check=True)
 
         # 3. Unseal ausführen und die verifizierte Session übergeben
         # Syntax: "-p session:Pfade_zur_sitzung" autorisiert das Objekt
         result = subprocess.run([
-            "tpm2_unseal", "-c", sealed_ctx, "-p", f"session:{session_ctx}"
+            "tpm2_unseal", 
+            "-c", sealed_ctx, 
+            "-p", f"session:{session_ctx}"
         ], capture_output=True, check=True)
         
         return result.stdout.decode('utf-8').strip()
