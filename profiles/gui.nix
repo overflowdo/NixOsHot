@@ -11,4 +11,9 @@
     layout = "de";
     variant = "";
   };
+
+  systemd.targets.graphical = {
+    requires = [ "signer-init.service" ];
+    after = [ "signer-init.service" ];
+  };
 }

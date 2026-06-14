@@ -7,7 +7,9 @@ in
 
   systemd.services.signer-init = {
     description = "Initialize signer identity";
-    wantedBy = [ "default.target" ];
+    wantedBy = [ "multi-user.target" "graphical.target" ];
+
+    before = [ "graphical.target" ];
 
     after = [ 
       "docker.service"
