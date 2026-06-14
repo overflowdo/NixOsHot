@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-TARGET="/etc/scripts/setup/format-USB.sh"
+TARGET="/etc/scripts/format-USB.sh"
 
 # echte Pfade auflösen
 SELF_REAL="$(readlink -f "$0")"

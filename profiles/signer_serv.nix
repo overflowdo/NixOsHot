@@ -25,7 +25,7 @@ in
       fi
 
       echo "[*] switching to setup mode"
-      ${pkgs.nftables}/bin/nft -f /etc/nftables-setup.conf
+      ${pkgs.nftables}/bin/nft -f /etc/nixos/profiles/nftables-setup.conf
 
       echo "[*] building signer container"
       docker compose build
@@ -38,7 +38,7 @@ in
       docker exec nixos-psbt-signer-1 python3 /psbt-signer/scripts/setup/registerWallet.py
 
       echo "[*] switching to setup mode"
-      ${pkgs.nftables}/bin/nft -f /etc/nftables-locked.conf
+      ${pkgs.nftables}/bin/nft -f /etc/nixos/profiles/nftables-locked.conf
 
       mkdir -p /var/lib/signer
       touch "$STATE"
