@@ -9,12 +9,22 @@ in
     description = "Initialize signer identity";
     wantedBy = [ "multi-user.target" ];
 
+    after = [ 
+      "wireguard-wg0.service"
+      "docker.service"
+    ];
+    requires = [ 
+      "wireguard-wg0.service"
+      "docker.service"
+    ];
+
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
+      WorkingDirectory = appDir;
     };
 
-
+    
     script = ''
 
       STATE=/var/lib/signer/initialized
