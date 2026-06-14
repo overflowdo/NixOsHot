@@ -7,11 +7,12 @@ in
 
   systemd.services.signer-init = {
     description = "Initialize signer identity";
-    wantedBy = [ "multi-user.target" ];
+    wantedBy = [ "default.target" ];
 
     after = [ 
-      "wireguard-wg0.service"
       "docker.service"
+      "wireguard-wg0.service"
+      "network-online.target"
     ];
     requires = [ 
       "wireguard-wg0.service"
@@ -34,13 +35,12 @@ in
 
       STATE=/var/lib/signer/initialized
 
+      sleep 20
+
       if [ -f "$STATE" ]; then
         echo "[*] already initialized"
         exit 0
       fi
-
-      echo "=== DNS ==="
-      #cat /etc/resolv.conf
 
       echo "[*] switching to setup mode"
       #${pkgs.nftables}/bin/nft -f /etc/nixos/profiles/nftables-setup.conf
