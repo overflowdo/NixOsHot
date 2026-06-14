@@ -20,7 +20,10 @@
       PUBLIC_KEY_FILE="/var/lib/wireguard/public.key"
 
       if [ ! -f "$PRIVATE_KEY_FILE" ]; then
-        wg genkey | tee "$PRIVATE_KEY_FILE" | wg pubkey > "$PUBLIC_KEY_FILE"
+        ${pkgs.wireguard-tools}/bin/wg genkey \
+          | tee "$PRIVATE_KEY_FILE" \
+          | ${pkgs.wireguard-tools}/bin/wg pubkey \
+          > "$PUBLIC_KEY_FILE"
       fi
       
     '';
