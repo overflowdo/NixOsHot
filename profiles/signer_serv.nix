@@ -38,14 +38,14 @@ in
       ${pkgs.nftables}/bin/nft -f /etc/nixos/profiles/nftables-setup.conf
 
       echo "[*] building signer container"
-      docker compose build
+      ${pkgs.docker}/bin/docker compose build
 
-      docker compose up -d
+      ${pkgs.docker}/bin/docker compose up -d
 
       #Wallet init
-      docker exec nixos-psbt-signer-1 python3 /psbt-signer/scripts/setup/genSeed.py
-      docker exec nixos-psbt-signer-1 python3 /psbt-signer/scripts/setup/genWallet.py
-      docker exec nixos-psbt-signer-1 python3 /psbt-signer/scripts/setup/registerWallet.py
+      ${pkgs.docker}/bin/docker exec nixos-psbt-signer-1 python3 /psbt-signer/scripts/setup/genSeed.py
+      ${pkgs.docker}/bin/docker exec nixos-psbt-signer-1 python3 /psbt-signer/scripts/setup/genWallet.py
+      ${pkgs.docker}/bin/docker exec nixos-psbt-signer-1 python3 /psbt-signer/scripts/setup/registerWallet.py
 
       echo "[*] switching to setup mode"
       ${pkgs.nftables}/bin/nft -f /etc/nixos/profiles/nftables-locked.conf
