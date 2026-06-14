@@ -44,10 +44,10 @@ del root_key
 
 #xpub key mit tpub identifier
 xpub_string = account_key.to_public().to_string(version=network_config["xpub"])
+del account_key
 
 path_cleaned = derivation_path.replace("m/", "")
 descriptor_format = f"wpkh([{fingerprint_hex}/{path_cleaned}]{xpub_string}/0/*)"
-del fingerprint_hex
 
 
 desc_obj = Descriptor.from_string(descriptor_format)
