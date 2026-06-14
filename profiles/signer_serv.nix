@@ -40,15 +40,11 @@ in
       fi
 
       echo "=== DNS ==="
-      cat /etc/resolv.conf
-
-      echo "=== Nameserver erreichbar? ==="
-      getent hosts docker.io || true
+      #cat /etc/resolv.conf
 
       echo "[*] switching to setup mode"
       #${pkgs.nftables}/bin/nft -f /etc/nixos/profiles/nftables-setup.conf
 
-      ${pkgs.glibc.bin}/bin/getent hosts docker.io
       echo "[*] building signer container"
       ${pkgs.docker}/bin/docker compose build
 
