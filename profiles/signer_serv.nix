@@ -16,6 +16,11 @@ in
     requires = [ 
       "wireguard-wg0.service"
       "docker.service"
+      "network-online.target"
+      "nss-lookup.target"
+    ];
+    wants = [
+      "network-online.target"
     ];
 
     serviceConfig = {
@@ -34,9 +39,16 @@ in
         exit 0
       fi
 
+      echo "=== DNS ==="
+      cat /etc/resolv.conf
+
+      echo "=== Nameserver erreichbar? ==="
+      getent hosts docker.io || true
+
       echo "[*] switching to setup mode"
       #${pkgs.nftables}/bin/nft -f /etc/nixos/profiles/nftables-setup.conf
 
+      ${pkgs.glibc.bin}/bin/getent hosts docker.io
       echo "[*] building signer container"
       ${pkgs.docker}/bin/docker compose build
 
