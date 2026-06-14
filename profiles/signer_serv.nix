@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 
 let
-  appDir = "/psbt-signer";
+  appDir = "/etc/nixos/";
 in
 {
 
