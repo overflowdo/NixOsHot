@@ -73,11 +73,6 @@ fi
 WG_PORT="51820"
 WG_ENDPOINT="${SIGNER_ENDPOINT_IP}:${WG_PORT}"
 
-# Optional: override from env file
-if [[ -f "$WG_IP_FILE" ]]; then
-  source "$WG_IP_FILE"
-fi
-
 SIGNER_WG_PUB="/var/lib/wireguard/public.key"
 
 SIGNER_PUB_KEY="$(cat "$SIGNER_WG_PUB")"
