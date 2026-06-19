@@ -59,10 +59,6 @@ done
 # export raw files
 
 # wg
-cp \
-  /var/lib/wireguard/public.key \
-  "$USB_MOUNT/communication/wireguard-public.key"
-
 # WireGuard dynamic JSON export
 WG_IP_FILE="/var/lib/signer/wireguard.env"
 
@@ -88,7 +84,7 @@ SIGNER_WG_PUB="/var/lib/wireguard/public.key"
 
 SIGNER_PUB_KEY="$(cat "$SIGNER_WG_PUB")"
 
-WIREGUARD_JSON="$USB_MOUNT/communication/wireguard.signer.json"
+WIREGUARD_JSON="$USB_MOUNT/communication/wireguard/wireguard.signer.json"
 
 cat > "$WIREGUARD_JSON" <<EOF
 {

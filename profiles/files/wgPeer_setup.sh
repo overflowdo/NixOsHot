@@ -4,7 +4,7 @@ set -euo pipefail
 USB_MOUNT="/mnt/usb"
 WG_IF="wg0"
 
-WG_JSON="$USB_MOUNT/communication/wireguard.wallet.json"
+WG_JSON="$USB_MOUNT/communication/wireguard/wireguard.wallet.json"
 
 mkdir -p "$USB_MOUNT"
 if mountpoint -q "$USB_MOUNT"; then
@@ -50,6 +50,10 @@ echo "AllowedIPs: $ALLOWED_IP"
 wg set "$WG_IF" peer "$SIGNER_PUB_KEY" remove 2>/dev/null || true
 
 #add peer
-wg set "$WG_IF" peer "$SIGNER_PUB_KEY" allowed-ips "$ALLOWED_IP"
+KEEPALIVE=25
+
+wg set "$WG_IF" peer "$SIGNER_PUB_KEY" \
+    allowed-ips "$ALLOWED_IP" \
+    persistent-keepalive "$KEEPALIVE"
 
 echo "WireGuard peer applied successfully."
