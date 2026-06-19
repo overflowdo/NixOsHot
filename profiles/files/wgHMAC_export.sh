@@ -72,7 +72,7 @@ if [[ -z "${SIGNER_ENDPOINT_IP:-}" ]]; then
 fi
 
 
-WG_PORT="51820"
+WG_PORT="34689"
 WG_ENDPOINT="${SIGNER_ENDPOINT_IP}:${WG_PORT}"
 
 # Optional: override from env file
@@ -121,13 +121,6 @@ cp /var/lib/signer/wallets/metadata.json \
 
 echo ""
 echo "Export complete"
-echo ""
-echo "Files:"
-echo "  communication/wireguard-public.key"
-echo "  communication/hmac.secret"
-echo "  wallet/hot/descriptor.public.txt"
-echo "  wallet/hot/metadata.json"
-echo ""
 echo "Unmount USB"
 
 umount "$USB_MOUNT"

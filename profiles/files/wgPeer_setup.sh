@@ -26,33 +26,33 @@ if ! ip link show "$WG_IF" >/dev/null 2>&1; then
 fi
 
 
-SIGNER_PUB_KEY=$(jq -r '.signer_public_key' "$WG_JSON")
-SIGNER_IP=$(jq -r '.signer_ip' "$WG_JSON")
+WALLET_PUB_KEY=$(jq -r '.wallet_public_key' "$WG_JSON")
+WALLET_IP=$(jq -r '.wallet_ip' "$WG_JSON")
 
-if [[ -z "$SIGNER_PUB_KEY" || "$SIGNER_PUB_KEY" == "null" ]]; then
-    echo "ERROR: invalid signer_public_key" >&2
+if [[ -z "$WALLET_PUB_KEY" || "WALLET_PUB_KEY" == "null" ]]; then
+    echo "ERROR: invalid wallet_public_key" >&2
     exit 1
 fi
 
-if [[ -z "$SIGNER_IP" || "$SIGNER_IP" == "null" ]]; then
-    echo "ERROR: invalid signer_ip" >&2
+if [[ -z "$WALLET_IP" || "$WALLET_IP" == "null" ]]; then
+    echo "ERROR: invalid wallet_ip" >&2
     exit 1
 fi
 
 #normalize CIDR -> /32 for peer
-ALLOWED_IP="${SIGNER_IP%/*}/32"
+ALLOWED_IP="${WALLET_IP%/*}/32"
 
 echo "Applying WireGuard peer..."
-echo "Peer: $SIGNER_PUB_KEY"
+echo "Peer: $WALLET_PUB_KEY"
 echo "AllowedIPs: $ALLOWED_IP"
 
 #Remove existing peer (only one allowed for specific wallet signer)
-wg set "$WG_IF" peer "$SIGNER_PUB_KEY" remove 2>/dev/null || true
+wg set "$WG_IF" peer "$WALLET_PUB_KEY" remove 2>/dev/null || true
 
 #add peer
 KEEPALIVE=25
 
-wg set "$WG_IF" peer "$SIGNER_PUB_KEY" \
+wg set "$WG_IF" peer "$WALLET_PUB_KEY" \
     allowed-ips "$ALLOWED_IP" \
     persistent-keepalive "$KEEPALIVE"
 
