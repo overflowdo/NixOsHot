@@ -44,9 +44,6 @@ in
         exit 0
       fi
 
-      echo "[*] switching to setup mode"
-      #${pkgs.nftables}/bin/nft -f /etc/nixos/profiles/nftables-setup.conf
-
       echo "[*] building signer container"
       ${pkgs.docker}/bin/docker compose build
 

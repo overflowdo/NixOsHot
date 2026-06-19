@@ -46,6 +46,8 @@
     Compress=yes
   '';
 
+  nix.settings.download-buffer-size = 268435456; # 256MB
+
 
   # PACKAGES
   environment.systemPackages = with pkgs; [

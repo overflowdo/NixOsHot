@@ -33,17 +33,5 @@
     ips = [ "10.10.0.2/24" ];
 
     privateKeyFile = "/var/lib/wireguard/private.key";
-
-    peers = [
-      {
-        publicKey = "123";  #Public Key der VM
-
-        allowedIPs = [ "10.10.0.1/32" ];
-
-        endpoint = "192.168.99.78:51820";
-
-        persistentKeepalive = 25;
-      }
-    ];
   };
 }

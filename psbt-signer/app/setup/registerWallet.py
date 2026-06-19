@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import json
 from pathlib import Path
 
@@ -10,8 +11,8 @@ DESC_FILE = "/psbt-signer/run/wallets/descriptor.public.txt"
 
 RPC_USER = "user"
 RPC_PASSWORD = "pass"
-RPC_HOST = "192.168.99.101"
-RPC_PORT = 18443
+RPC_HOST = os.getenv("BTC-NETWORK_IP", "192.168.99.58")
+RPC_PORT = os.getenv("BTC-NETWORK_PORT", 18443)
 
 RPC_URL = f"http://{RPC_HOST}:{RPC_PORT}"
 WALLET_RPC_URL = f"{RPC_URL}/wallet/keyA"

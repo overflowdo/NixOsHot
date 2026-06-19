@@ -16,7 +16,6 @@ if [[ ! -b "$USB_DEVICE" ]]; then
 fi
 
 mkdir -p "$USB_MOUNT"
-
 if mountpoint -q "$USB_MOUNT"; then
   echo "USB already mounted at $USB_MOUNT, skipping mount"
 else
@@ -63,6 +62,52 @@ done
 cp \
   /var/lib/wireguard/public.key \
   "$USB_MOUNT/communication/wireguard-public.key"
+
+# WireGuard dynamic JSON export
+WG_IP_FILE="/var/lib/signer/wireguard.env"
+
+# Fallback defaults (fallback)
+SIGNER_IP="10.10.0.2/24"
+WALLET_IP="10.10.0.1/24"
+
+# robust endpoint detection fallback
+if [[ -z "${SIGNER_ENDPOINT_IP:-}" ]]; then
+  SIGNER_ENDPOINT_IP=$(ip route get 1.1.1.1 | awk '{print $7; exit}')
+fi
+
+
+WG_PORT="51820"
+WG_ENDPOINT="${SIGNER_ENDPOINT_IP}:${WG_PORT}"
+
+# Optional: override from env file
+if [[ -f "$WG_IP_FILE" ]]; then
+  source "$WG_IP_FILE"
+fi
+
+SIGNER_WG_PUB="/var/lib/wireguard/public.key"
+
+SIGNER_PUB_KEY="$(cat "$SIGNER_WG_PUB")"
+
+WIREGUARD_JSON="$USB_MOUNT/communication/wireguard.signer.json"
+
+cat > "$WIREGUARD_JSON" <<EOF
+{
+  "signer_public_key": "$SIGNER_PUB_KEY",
+  "signer_ip": "$SIGNER_IP",
+  "wallet_ip": "$WALLET_IP",
+  "port": $WG_PORT,
+  "endpoint": "$WG_ENDPOINT",
+  "allowed_ips_signer": "$WALLET_IP/32",
+  "allowed_ips_wallet": "$SIGNER_IP/32"
+}
+EOF
+
+chmod 644 "$WIREGUARD_JSON"
+
+echo "Exported: wireguard.signer.json"
+
+
+
 
 #API
 cp /var/lib/signer/hmac.secret \
