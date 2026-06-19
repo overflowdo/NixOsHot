@@ -16,3 +16,6 @@ services:
     devices:
       - /dev/tpm0:/dev/tpm0
       - /dev/tpmrm0:/dev/tpmrm0
+
+    ports:
+     - "8080:8080"

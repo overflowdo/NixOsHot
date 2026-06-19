@@ -66,7 +66,7 @@ WG_IP_FILE="/var/lib/signer/wireguard.env"
 SIGNER_IP="10.10.0.2/24"
 WALLET_IP="10.10.0.1/24"
 
-# robust endpoint detection fallback
+# robust endpoint
 if [[ -z "${SIGNER_ENDPOINT_IP:-}" ]]; then
   SIGNER_ENDPOINT_IP=$(ip route get 1.1.1.1 | awk '{print $7; exit}')
 fi
@@ -93,8 +93,8 @@ cat > "$WIREGUARD_JSON" <<EOF
   "wallet_ip": "$WALLET_IP",
   "port": $WG_PORT,
   "endpoint": "$WG_ENDPOINT",
-  "allowed_ips_signer": "$WALLET_IP/32",
-  "allowed_ips_wallet": "$SIGNER_IP/32"
+  "allowed_ips_signer": "$WALLET_IP/24",
+  "allowed_ips_wallet": "$SIGNER_IP/24"
 }
 EOF
 
