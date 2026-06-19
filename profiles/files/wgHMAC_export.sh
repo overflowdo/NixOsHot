@@ -59,12 +59,10 @@ done
 # export raw files
 
 # wg
-# WireGuard dynamic JSON export
-WG_IP_FILE="/var/lib/signer/wireguard.env"
 
 # Fallback defaults (fallback)
-SIGNER_IP="10.10.0.2/24"
-WALLET_IP="10.10.0.1/24"
+SIGNER_IP="10.10.0.2/32"
+WALLET_IP="10.10.0.1/32"
 
 # robust endpoint
 if [[ -z "${SIGNER_ENDPOINT_IP:-}" ]]; then
@@ -72,7 +70,7 @@ if [[ -z "${SIGNER_ENDPOINT_IP:-}" ]]; then
 fi
 
 
-WG_PORT="34689"
+WG_PORT="51820"
 WG_ENDPOINT="${SIGNER_ENDPOINT_IP}:${WG_PORT}"
 
 # Optional: override from env file
@@ -93,8 +91,8 @@ cat > "$WIREGUARD_JSON" <<EOF
   "wallet_ip": "$WALLET_IP",
   "port": $WG_PORT,
   "endpoint": "$WG_ENDPOINT",
-  "allowed_ips_signer": "$WALLET_IP/24",
-  "allowed_ips_wallet": "$SIGNER_IP/24"
+  "allowed_ips_signer": "$WALLET_IP",
+  "allowed_ips_wallet": "$SIGNER_IP"
 }
 EOF
 

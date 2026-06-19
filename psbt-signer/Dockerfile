@@ -29,4 +29,4 @@ RUN mkdir -p /data /wallets
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.signer:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.signer:app", "--host", "10.10.0.2", "--port", "8080"]

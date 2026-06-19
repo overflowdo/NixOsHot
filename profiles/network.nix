@@ -32,4 +32,5 @@
   };
 
   networking.nftables.enable = true;
+  networking.usePredictableInterfaceNames = false;
 }

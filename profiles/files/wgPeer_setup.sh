@@ -4,6 +4,8 @@ set -euo pipefail
 USB_DEVICE="/dev/disk/by-label/USB"
 USB_MOUNT="/mnt/usb"
 WG_IF="wg0"
+WG_DIR="/etc/wireguard"
+WG_CONF="$WG_DIR/$WG_IF.conf"
 
 WG_JSON="$USB_MOUNT/communication/wireguard/wireguard.wallet.json"
 
@@ -30,7 +32,7 @@ fi
 WALLET_PUB_KEY=$(jq -r '.wallet_public_key' "$WG_JSON")
 WALLET_IP=$(jq -r '.wallet_ip' "$WG_JSON")
 
-if [[ -z "$WALLET_PUB_KEY" || "WALLET_PUB_KEY" == "null" ]]; then
+if [[ -z "$WALLET_PUB_KEY" || "$WALLET_PUB_KEY" == "null" ]]; then
     echo "ERROR: invalid wallet_public_key" >&2
     exit 1
 fi
@@ -40,7 +42,6 @@ if [[ -z "$WALLET_IP" || "$WALLET_IP" == "null" ]]; then
     exit 1
 fi
 
-#normalize CIDR -> /32 for peer
 ALLOWED_IP="${WALLET_IP%/*}/32"
 
 echo "Applying WireGuard peer..."
@@ -48,43 +49,27 @@ echo "Peer: $WALLET_PUB_KEY"
 echo "AllowedIPs: $ALLOWED_IP"
 
 #Konfig datei neuschreiben oder Peer überschreiben
-if [[ ! -f "$WG_CONF" ]]; then
-    echo "Configuration file $WG_CONF missing. Generating new file..."
-    
-    # Verzeichnis mit sicheren Rechten erstellen
-    mkdir -p "$(dirname "$WG_CONF")"
-    chmod 700 "$(dirname "$WG_CONF")"
-    
-    PRIVATE_KEY_FILE="/var/lib/wireguard/private.key"
-    if [[ -f "$PRIVATE_KEY_FILE" ]]; then
-        PRIV_KEY=$(cat "$PRIVATE_KEY_FILE")
-    else
-        echo "ERROR: Private key file $PRIVATE_KEY_FILE not found!" >&2
-        exit 1
-    fi
 
+    
+# Verzeichnis mit sicheren Rechten erstellen
+mkdir -p "$(dirname "$WG_CONF")"
+chmod 700 "$(dirname "$WG_CONF")"
 
-    cat <<EOF > "$WG_CONF"
+PRIVATE_KEY_FILE="/var/lib/wireguard/private.key"
+if [[ -f "$PRIVATE_KEY_FILE" ]]; then
+    PRIV_KEY=$(cat "$PRIVATE_KEY_FILE")
+else
+    echo "ERROR: Private key file $PRIVATE_KEY_FILE not found!" >&2
+    exit 1
+fi
+
+# überschreiben
+cat <<EOF > "$WG_CONF"
 [Interface]
-Address = 10.10.0.2/24
+Address = 10.10.0.2/32
 PrivateKey = $PRIV_KEY
 ListenPort = 34698
-SaveConfig = false
-EOF
-    chmod 600 "$WG_CONF"
-fi
-
-# Bestehenden Peer-Eintrag überschreiben, falls er schon existiert
-if grep -q "$WALLET_PUB_KEY" "$WG_CONF"; then
-    echo "Peer already exists. Overwriting peer configuration in $WG_CONF..."
-    # Entfernt den alten [Peer]-Block bis zur nächsten Leerzeile
-    sed -i "/\[Peer\]/,/^\s*$/{/$WALLET_PUB_KEY/d; d;}" "$WG_CONF"
-    # Entfernt verbleibende Leerzeilen am Dateiende
-    sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' "$WG_CONF"
-fi
-
-# Den Peer an die Konfigurationsdatei anhängen
-cat <<EOF >> "$WG_CONF"
+SaveConfig = true
 
 [Peer]
 PublicKey = $WALLET_PUB_KEY
@@ -92,14 +77,13 @@ AllowedIPs = $ALLOWED_IP
 PersistentKeepalive = 25
 EOF
 
+chmod 600 "$WG_CONF"
 
 
-#Remove existing peer (only one allowed for specific wallet signer)
 wg set "$WG_IF" peer "$WALLET_PUB_KEY" remove 2>/dev/null || true
 
-#add peer
-KEEPALIVE=25
 
+KEEPALIVE=25
 wg set "$WG_IF" peer "$WALLET_PUB_KEY" \
     allowed-ips "$ALLOWED_IP" \
     persistent-keepalive "$KEEPALIVE"
