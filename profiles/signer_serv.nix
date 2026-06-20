@@ -63,6 +63,7 @@ in
       #${pkgs.nftables}/bin/nft -f /etc/nixos/profiles/nftables-locked.conf
 
       mkdir -p /var/lib/signer
+      mkdir -p /var/lib/signer/tpm
       touch "$STATE"
     '';
 
