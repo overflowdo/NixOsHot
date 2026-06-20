@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 from fastapi import FastAPI, Request, HTTPException
+import json
 
+import logging
 from .auth import verify_request, AuthError
 from .psbt import (
     decode_psbt,
@@ -11,12 +13,17 @@ from .psbt import (
     psbt_serialize,
     PSBTError
 )
+from .db import insert_psbt
 from .engine import sign_psbt
 import hashlib
 
 app = FastAPI()
+log = logging.getLogger("signer")
 
-SIGNING_SECRET = open("/psbt-signer/run/secrets/hmac.secret").read().strip()
+SIGNER_HMAC_SECRET = "/psbt-signer/run/secrets/hmac.secret"
+
+with open(SIGNER_HMAC_SECRET, "r") as f:
+    SIGNING_SECRET = bytes.fromhex(f.read().strip())
 
 
 @app.post("/sign")
@@ -27,6 +34,14 @@ async def sign(request: Request):
     nonce = request.headers.get("X-Nonce")
     sig = request.headers.get("X-Signature")
 
+    log.info(
+        "received psbt",
+        extra={
+            "ts": ts,
+            "nonce": nonce,
+            "sig": sig,
+        }
+    )
 
     #Verify HMAC key
     try:
@@ -36,15 +51,35 @@ async def sign(request: Request):
 
 
     #extract data
-    data = await request.json()
+    try:
+        data = json.loads(body)
+    except json.JSONDecodeError:
+        raise HTTPException(400, "Invalid JSON body")
 
-    response = {
-        "intent_id": data.get("intent_id")
-    }
-    psbt_b64 = data.get("psbt_base64")
+    psbt_b64 = data.get("psbt")
 
     if not psbt_b64:
         raise HTTPException(400, "missing psbt_base64")
+
+    #sha256 check. gegen manipulationd der psbt
+    if hashlib.sha256(psbt_b64.encode()).hexdigest() != data.get("sha256"):
+        raise HTTPException(
+            status_code=400,
+            detail="sha256 mismatch (PSBT tampering detected)"
+        )
+
+    try:
+        insert_psbt(data)
+    except Exception as e:
+        return {
+            "status": "ALREADY_PROCESSED",
+            "psbt_id": data.get("psbt_id")
+        }
+
+    response = {
+        "psbt_id": data.get("psbt_id")
+    }
+    
     
 
     #Decode
@@ -62,7 +97,7 @@ async def sign(request: Request):
     
 
     #Hot-Tx worfflow
-    if data.get("type") == "hot-tx":
+    if data.get("psbt_type") == "hot-tx":
         # FINALIZE PSBT
         try:
             #extract directly

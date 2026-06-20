@@ -18,7 +18,7 @@ def verify_request(secret: str, body: bytes, ts: str, nonce: str, sig: str):
     msg = ts.encode() + nonce.encode() + body
 
     expected = hmac.new(
-        bytes.fromhex(secret),
+        secret,
         msg,
         hashlib.sha256
     ).hexdigest()

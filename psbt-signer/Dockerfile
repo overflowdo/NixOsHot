@@ -27,6 +27,6 @@ COPY . .
 # Create directories for persistent data
 RUN mkdir -p /data /wallets
 
-EXPOSE 8000
+EXPOSE 8080
 
 CMD ["uvicorn", "app.signer:app", "--host", "0.0.0.0", "--port", "8080"]

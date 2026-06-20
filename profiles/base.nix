@@ -22,7 +22,7 @@
         mode = "0755";
     };
     environment.etc."scripts/wgPeer_setup.sh" = {
-        source = ./files/wgHMAC_export.sh;
+        source = ./files/wgPeer_setup.sh;
         mode = "0755";
     };
     environment.etc."scripts/mnt-USB.sh" = {

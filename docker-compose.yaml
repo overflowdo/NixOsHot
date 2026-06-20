@@ -6,6 +6,11 @@ services:
       NETWORK: regtest
       BTC-NETWORK_IP: 192.168.99.58
       BTC-NETWORK_PORT: 18443
+
+      DATABASE_URL: postgresql://user:pass@postgres:5432/btc
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: btc
       
     volumes:
       - /var/lib/signer/data:/psbt-signer/run/data
@@ -19,3 +24,15 @@ services:
 
     ports:
      - "8080:8080"
+     
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: btc
+    ports:
+      - "5432:5432"
+    volumes:
+    - postgres_data:/run/postgresql/data
+    - ./psbt-signer/app/001_psbt.sql:/docker-entrypoint-initdb.d/001_psbt.sql:ro
