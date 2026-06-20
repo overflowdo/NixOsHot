@@ -55,7 +55,7 @@ in
       ${pkgs.docker}/bin/docker exec nixos-psbt-signer-1 python3 /psbt-signer/scripts/setup/registerWallet.py
 
       echo "[*] switching to setup mode"
-      ${pkgs.nftables}/bin/nft -f /etc/nixos/profiles/nftables-locked.conf
+      #${pkgs.nftables}/bin/nft -f /etc/nixos/profiles/nftables-locked.conf
 
       mkdir -p /var/lib/signer
       touch "$STATE"

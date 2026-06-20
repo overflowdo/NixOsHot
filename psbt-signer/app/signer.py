@@ -18,7 +18,13 @@ from .engine import sign_psbt
 import hashlib
 
 app = FastAPI()
-log = logging.getLogger("signer")
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+)
+
+log = logging.getLogger(__name__)
 
 SIGNER_HMAC_SECRET = "/psbt-signer/run/secrets/hmac.secret"
 
