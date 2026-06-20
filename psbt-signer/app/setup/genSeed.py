@@ -5,7 +5,7 @@ import sys
 import subprocess
 from embit import bip39
 
-STATE_DIR = "/pst-signer/tpm"
+STATE_DIR = "/psbt-signer/tpm"
 INIT_MARKER = os.path.join(STATE_DIR, "initialized")
 
 
