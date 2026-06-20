@@ -36,3 +36,6 @@ services:
     volumes:
     - postgres_data:/run/postgresql/data
     - ./psbt-signer/app/001_psbt.sql:/docker-entrypoint-initdb.d/001_psbt.sql:ro
+
+volumes:
+  postgres_data:
