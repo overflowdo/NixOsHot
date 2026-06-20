@@ -1,6 +1,7 @@
 services:
   psbt-signer:
     build: ./psbt-signer
+    container_name: psbt-signer
     restart: unless-stopped
     environment:
       SERVICE_NAME: psbt-signer
