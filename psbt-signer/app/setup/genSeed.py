@@ -5,7 +5,7 @@ import sys
 import subprocess
 from embit import bip39
 
-STATE_DIR = "/var/lib/signer"
+STATE_DIR = "/pst-signer/tpm"
 INIT_MARKER = os.path.join(STATE_DIR, "initialized")
 
 

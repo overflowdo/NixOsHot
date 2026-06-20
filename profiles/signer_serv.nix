@@ -50,11 +50,16 @@ in
       ${pkgs.docker}/bin/docker compose up -d
 
       #Wallet init
-      ${pkgs.docker}/bin/docker exec nixos-psbt-signer-1 python3 /psbt-signer/scripts/setup/genSeed.py
-      ${pkgs.docker}/bin/docker exec nixos-psbt-signer-1 python3 /psbt-signer/scripts/setup/genWallet.py
-      ${pkgs.docker}/bin/docker exec nixos-psbt-signer-1 python3 /psbt-signer/scripts/setup/registerWallet.py
+      ${pkgs.docker}/bin/docker exec psbt-signer python3 /psbt-signer/scripts/setup/genSeed.py
+      ${pkgs.docker}/bin/docker exec psbt-signer python3 /psbt-signer/scripts/setup/genWallet.py
+      ${pkgs.docker}/bin/docker exec psbt-signer python3 /psbt-signer/scripts/setup/registerWallet.py
 
-      echo "[*] switching to setup mode"
+      ${pkgs.docker}/bin/docker cp psbt-signer:/psbt-signer/tpm/seal.pub /var/lib/signer/tpm/
+      ${pkgs.docker}/bin/docker cp psbt-signer:/psbt-signer/tpm/seal.priv /var/lib/signer/tpm/
+      ${pkgs.docker}/bin/docker cp psbt-signer:/psbt-signer/tpm/sealed.ctx /var/lib/signer/tpm/
+      ${pkgs.docker}/bin/docker cp psbt-signer:/psbt-signer/tpm/pcr.policy /var/lib/signer/tpm/
+
+      echo "[*] switching to locked mode"
       #${pkgs.nftables}/bin/nft -f /etc/nixos/profiles/nftables-locked.conf
 
       mkdir -p /var/lib/signer

@@ -3,6 +3,7 @@ services:
     build: ./psbt-signer
     restart: unless-stopped
     environment:
+      SERVICE_NAME: psbt-signer
       NETWORK: regtest
       BTC-NETWORK_IP: 192.168.99.58
       BTC-NETWORK_PORT: 18443
@@ -15,6 +16,7 @@ services:
     volumes:
       - /var/lib/signer/data:/psbt-signer/run/data
       - /var/lib/signer/wallets:/psbt-signer/run/wallets
+      - /var/lib/signer/tpm:/psbt-signer/tpm
       - ./psbt-signer/app:/psbt-signer/scripts:ro
       - /var/lib/signer/hmac.secret:/psbt-signer/run/secrets/hmac.secret:ro
 

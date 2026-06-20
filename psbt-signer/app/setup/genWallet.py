@@ -9,7 +9,7 @@ from embit.networks import NETWORKS
 import sys
 
 
-STATE_DIR = "/var/lib/signer"
+STATE_DIR = "/psbt-signer/tpm"
 
 # Errechnet den Pfad zu 'scripts/' (ein Ordner über 'setup/')
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))

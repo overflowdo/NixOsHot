@@ -2,7 +2,7 @@
 
 from fastapi import FastAPI, Request, HTTPException
 import json
-
+import base64
 import logging
 from .auth import verify_request, AuthError
 from .psbt import (
@@ -66,9 +66,11 @@ async def sign(request: Request):
 
     if not psbt_b64:
         raise HTTPException(400, "missing psbt_base64")
+    
+    psbt_bytes = base64.b64decode(psbt_b64)
 
     #sha256 check. gegen manipulationd der psbt
-    if hashlib.sha256(psbt_b64.encode()).hexdigest() != data.get("sha256"):
+    if hashlib.sha256(psbt_bytes).hexdigest() != data.get("sha256"):
         raise HTTPException(
             status_code=400,
             detail="sha256 mismatch (PSBT tampering detected)"
@@ -85,7 +87,6 @@ async def sign(request: Request):
     response = {
         "psbt_id": data.get("psbt_id")
     }
-    
     
 
     #Decode
