@@ -79,6 +79,8 @@ SIGNER_PUB_KEY="$(cat "$SIGNER_WG_PUB")"
 
 WIREGUARD_JSON="$USB_MOUNT/communication/wireguard/wireguard.signer.json"
 
+mkdir -p "$(dirname "$WIREGUARD_JSON")"
+
 cat > "$WIREGUARD_JSON" <<EOF
 {
   "signer_public_key": "$SIGNER_PUB_KEY",

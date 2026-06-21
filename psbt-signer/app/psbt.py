@@ -13,13 +13,6 @@ def load_psbt(psbt_bytes: bytes) -> PSBT:
     except Exception as e:
         raise PSBTError(f"INVALID_PSBT: {e}")
 
-def finalize_psbt(psbt: PSBT) -> PSBT:
-    try:
-        psbt.finalize()
-        return psbt
-    except Exception as e:
-        raise PSBTError(f"FINALIZE_FAILED: {e}")
-
 
 def encode_psbt(psbt: PSBT) -> str:
     try:
@@ -36,11 +29,8 @@ def decode_psbt(psbt_b64: str) -> PSBT:
     
 
 def extract_rawtx(psbt: PSBT) -> str:
-    if not psbt.is_final():
-        raise PSBTError("PSBT not finalized")
-    
     try:
-        tx = psbt.extract_tx()
+        tx = psbt.extract_tx() #Ist final kontrolle, failed, wenn es nciht funktioniert
         return tx.serialize().hex()
     except Exception as e:
         raise PSBTError(f"EXTRACT_FAILED: {e}")

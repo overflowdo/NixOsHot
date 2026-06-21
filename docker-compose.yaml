@@ -17,7 +17,7 @@ services:
     volumes:
       - /var/lib/signer/data:/psbt-signer/run/data
       - /var/lib/signer/wallets:/psbt-signer/run/wallets
-      - /var/lib/signer/tpm:/psbt-signer/tpm
+      - /var/lib/signer/tpm:/psbt-signer/tpm:ro
       - ./psbt-signer/app:/psbt-signer/scripts:ro
       - /var/lib/signer/hmac.secret:/psbt-signer/run/secrets/hmac.secret:ro
 

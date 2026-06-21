@@ -110,13 +110,8 @@ async def sign(request: Request):
             #extract directly
             raw_tx_final = extract_rawtx(psbt_signed)
 
-        except PSBTError:
-            # fallback: finalize then extract
-            try:
-                psbt_final = finalize_psbt(psbt_signed)
-                raw_tx_final = extract_rawtx(psbt_final)
-            except Exception as e:
-                raise HTTPException(500, f"FINALIZE_OR_EXTRACT_FAILED: {e}")
+        except PSBTError as e:
+            raise HTTPException(500, f"FINALIZE_OR_EXTRACT_FAILED: {e}")
         
         response.update({
             "psbt_type": "rawtx",

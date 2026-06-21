@@ -25,7 +25,7 @@ entropy = get_entropy_from_tpm()
 mnemonic = bip39.mnemonic_from_bytes(entropy)
 del entropy
 
-derivation_path = "m/84h/0h/0h" 
+derivation_path = "m/84h/1h/0h"    #1 für testnet, 0 für mainnet
 
 seed = bip39.mnemonic_to_seed(mnemonic)
 del mnemonic
@@ -33,14 +33,14 @@ del mnemonic
 #Angabe testnet zum bilden tpub statt xpub
 network_config = NETWORKS[NETWORK]
 
-root_key = HDKey.from_seed(seed)
+root = HDKey.from_seed(seed)
 del seed
 
-fingerprint_hex = root_key.fingerprint.hex()
+fingerprint_hex = root.fingerprint.hex()
 
 
-account_key = root_key.derive(derivation_path)
-del root_key
+account_key = root.derive(derivation_path)
+del root
 
 #xpub key mit tpub identifier
 xpub_string = account_key.to_public().to_string(version=network_config["xpub"])
