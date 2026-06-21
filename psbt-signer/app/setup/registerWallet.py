@@ -60,7 +60,7 @@ rpc_call(
         True,   #blank wallet
         "",
         False,
-        True    #descriptor (neu)
+        True    #descriptor (neue Architektur)
     ],
     rpc_id="createwallet"
 )
@@ -68,21 +68,29 @@ rpc_call(
 # Descriptor laden
 desc = Path(DESC_FILE).read_text().strip()
 
-print("load descriptor checksum")
-# Descriptor mit Checksum versehen
-desc_info = rpc_call(
-    RPC_URL,
-    "getdescriptorinfo",
-    [desc],
-    rpc_id="checksum"
-)
-
-desc = desc_info["descriptor"]
 # Externer (/0/*)
 external_desc = desc
-
 # Interner Change-Descriptor (/1/*)
 internal_desc = desc.replace("/0/*", "/1/*")
+
+print("load descriptor checksum")
+# Descriptor mit Checksum versehen
+ext_desc_info = rpc_call(
+    RPC_URL,
+    "getdescriptorinfo",
+    [external_desc],
+    rpc_id="checksum"
+)
+ext_desc = ext_desc_info["descriptor"]
+
+int_desc_info = rpc_call(
+    RPC_URL,
+    "getdescriptorinfo",
+    [internal_desc],
+    rpc_id="checksum"
+)
+int_desc = int_desc_info["descriptor"]
+
 
 print("Import descriptor with checksum")
 # Descriptor importieren
@@ -91,7 +99,7 @@ rpc_call(
     "importdescriptors",
     [[
         {
-            "desc": external_desc,
+            "desc": ext_desc,
             "timestamp": "now",
             "active": True,
             "internal": False,
@@ -99,7 +107,7 @@ rpc_call(
             "range": [0, 1000]
         },
         {
-            "desc": internal_desc,
+            "desc": int_desc,
             "timestamp": "now",
             "active": True,
             "internal": True,
