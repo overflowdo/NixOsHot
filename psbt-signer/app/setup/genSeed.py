@@ -9,8 +9,6 @@ STATE_DIR = "/psbt-signer/tpm"
 INIT_MARKER = os.path.join(STATE_DIR, "initialized")
 
 
-os.makedirs(STATE_DIR, exist_ok=True)
-os.chmod(STATE_DIR, 0o700)
 
 if os.path.exists(INIT_MARKER):
     print("Signer bereits initialisiert.")

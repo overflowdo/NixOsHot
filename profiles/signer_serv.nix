@@ -43,7 +43,8 @@ in
         echo "[*] already initialized"
         exit 0
       fi
-
+      mkdir -p /var/lib/signer
+      mkdir -p /var/lib/signer/tpm
       echo "[*] building signer container"
       ${pkgs.docker}/bin/docker compose build
 
@@ -62,8 +63,7 @@ in
       echo "[*] switching to locked mode"
       #${pkgs.nftables}/bin/nft -f /etc/nixos/profiles/nftables-locked.conf
 
-      mkdir -p /var/lib/signer
-      mkdir -p /var/lib/signer/tpm
+      
       touch "$STATE"
     '';
 
