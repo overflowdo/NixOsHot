@@ -8,7 +8,6 @@ from .auth import verify_request, AuthError
 from .psbt import (
     decode_psbt,
     encode_psbt,
-    finalize_psbt,
     extract_rawtx,
     psbt_serialize,
     PSBTError
