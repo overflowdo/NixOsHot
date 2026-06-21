@@ -56,11 +56,11 @@ rpc_call(
     "createwallet",
     [
         "keyA",
-        False,
-        False,
+        True,   #Disable priv keys
+        True,   #blank wallet
         "",
         False,
-        True
+        True    #descriptor (neu)
     ],
     rpc_id="createwallet"
 )
@@ -78,6 +78,11 @@ desc_info = rpc_call(
 )
 
 desc = desc_info["descriptor"]
+# Externer (/0/*)
+external_desc = desc
+
+# Interner Change-Descriptor (/1/*)
+internal_desc = desc.replace("/0/*", "/1/*")
 
 print("Import descriptor with checksum")
 # Descriptor importieren
@@ -86,10 +91,19 @@ rpc_call(
     "importdescriptors",
     [[
         {
-            "desc": desc,
+            "desc": external_desc,
             "timestamp": "now",
             "active": True,
             "internal": False,
+            "keypool": True,
+            "range": [0, 1000]
+        },
+        {
+            "desc": internal_desc,
+            "timestamp": "now",
+            "active": True,
+            "internal": True,
+            "keypool": True,
             "range": [0, 1000]
         }
     ]],
