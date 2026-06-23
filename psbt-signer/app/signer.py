@@ -15,6 +15,7 @@ from .psbt import (
 from .db import insert_psbt
 from .engine import sign_psbt
 import hashlib
+from psycopg.errors import UniqueViolation
 
 app = FastAPI()
 
@@ -77,7 +78,7 @@ async def sign(request: Request):
 
     try:
         insert_psbt(data)
-    except Exception as e:
+    except UniqueViolation:
         return {
             "status": "ALREADY_PROCESSED",
             "psbt_id": data.get("psbt_id")
@@ -103,7 +104,7 @@ async def sign(request: Request):
     
 
     #Hot-Tx worfflow
-    if data.get("psbt_type") == "hot-tx":
+    if data.get("wallet_type") == "hot":
         # FINALIZE PSBT
         try:
             #extract directly
@@ -113,7 +114,7 @@ async def sign(request: Request):
             raise HTTPException(500, f"FINALIZE_OR_EXTRACT_FAILED: {e}")
         
         response.update({
-            "psbt_type": "rawtx",
+            "wallet_type": data.get("wallet_type"),
             "rawtx_hex": raw_tx_final,
             "sha256": hashlib.sha256(bytes.fromhex(raw_tx_final)).hexdigest()
         })
@@ -123,7 +124,7 @@ async def sign(request: Request):
         #refill = 2-of-3 / not finalizable here
         try:
             response.update({
-                "psbt_type": "psbt",
+                "wallet_type": data.get("wallet_type"),
                 "signed_psbt_base64": encode_psbt(psbt_signed),
                 "sha256": hashlib.sha256(psbt_serialize(psbt_signed)).hexdigest()
             })

@@ -48,21 +48,19 @@ in
       echo "[*] building signer container"
       ${pkgs.docker}/bin/docker compose build
 
+      echo "[*] switching to locked mode"
+      #${pkgs.nftables}/bin/nft -f /etc/nixos/profiles/nftables-locked.conf
+
       ${pkgs.docker}/bin/docker compose up -d
 
       #Wallet init
       ${pkgs.docker}/bin/docker exec psbt-signer python3 /psbt-signer/scripts/setup/genSeed.py
       ${pkgs.docker}/bin/docker exec psbt-signer python3 /psbt-signer/scripts/setup/genWallet.py
-      ${pkgs.docker}/bin/docker exec psbt-signer python3 /psbt-signer/scripts/setup/registerWallet.py
 
       ${pkgs.docker}/bin/docker cp psbt-signer:/psbt-signer/tpm/seal.pub /var/lib/signer/tpm/
       ${pkgs.docker}/bin/docker cp psbt-signer:/psbt-signer/tpm/seal.priv /var/lib/signer/tpm/
       ${pkgs.docker}/bin/docker cp psbt-signer:/psbt-signer/tpm/sealed.ctx /var/lib/signer/tpm/
       ${pkgs.docker}/bin/docker cp psbt-signer:/psbt-signer/tpm/pcr.policy /var/lib/signer/tpm/
-
-      echo "[*] switching to locked mode"
-      #${pkgs.nftables}/bin/nft -f /etc/nixos/profiles/nftables-locked.conf
-
       
       touch "$STATE"
     '';

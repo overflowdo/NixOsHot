@@ -14,7 +14,7 @@ END $$;
 -- -----------------------------
 CREATE TABLE IF NOT EXISTS btc.psbt (
   psbt_id          TEXT PRIMARY KEY,
-  psbt_type         TEXT NOT NULL CHECK (psbt_type IN ('hot-tx', 'refill')),
+  wallet_type         TEXT NOT NULL CHECK (wallet_type IN ('hot', 'cold')),
 
   sha256 TEXT NOT NULL,
 

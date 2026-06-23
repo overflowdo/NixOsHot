@@ -17,23 +17,15 @@ def sign_psbt(psbt: PSBT):
 
     fingerprint = root.fingerprint
 
-    signed = 0
-
+    #Kontrolle, dass die psbt zum keymaterial gehört
     for inp in psbt.inputs:
-
         if not inp.bip32_derivations:
             continue
-
-        for pubkey, derivation in inp.bip32_derivations.items():
+        for derivation in inp.bip32_derivations.items():
 
             if derivation.fingerprint != fingerprint:
-                continue
+                return psbt
 
-            key = root.derive(
-                derivation.derivation
-            )
-
-            if inp.sign_with(key):
-                signed += 1
+    psbt.sign_with(root)
 
     return psbt

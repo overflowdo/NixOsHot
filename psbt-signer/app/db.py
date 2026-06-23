@@ -24,14 +24,13 @@ def insert_psbt(psbt: dict):
             cur.execute("""
                 INSERT INTO btc.psbt (
                     psbt_id,
-                    psbt_type,
+                    wallet_type,
                     sha256
                 )
                 VALUES (%s,%s,%s)
-                ON CONFLICT (psbt_id) DO NOTHING
             """, (
                 psbt.get("psbt_id"),
-                psbt.get("psbt_type"),
+                psbt.get("wallet_type"),
                 psbt.get("sha256")
             ))
         c.commit()
