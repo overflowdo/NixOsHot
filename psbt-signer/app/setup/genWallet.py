@@ -7,6 +7,7 @@ from embit.bip32 import HDKey
 from embit.descriptor import Descriptor
 from embit.networks import NETWORKS
 import sys
+from binascii import hexlify
 
 
 STATE_DIR = "/psbt-signer/tpm"
@@ -33,26 +34,20 @@ del mnemonic
 #Angabe testnet zum bilden tpub statt xpub
 network_config = NETWORKS[NETWORK]
 
-root = HDKey.from_seed(seed)
+root = HDKey.from_seed(seed, version=network_config["xprv"])
 del seed
 
-fingerprint_hex = root.fingerprint.hex()
+master_fingerprint_hex = hexlify(root.to_public().fingerprint).decode()
 
-
-account_key = root.derive(derivation_path)
+xpub = root.derive(derivation_path).to_public()
 del root
 
-#xpub key mit tpub identifier
-xpub_string = account_key.to_public().to_string(version=network_config["xpub"])
-del account_key
-
-path_cleaned = derivation_path.replace("m/", "")
-descriptor_format = f"wpkh([{fingerprint_hex}/{path_cleaned}]{xpub_string}/0/*)"
+descriptor_format = f"wpkh([{master_fingerprint_hex}/84h/1h/0h]{xpub}/{{0,1}}/*)"
 
 
 desc_obj = Descriptor.from_string(descriptor_format)
 pub_desc = str(desc_obj)
-
+print(pub_desc)
 
 # output Dir
 out_dir = os.environ.get("STATE_DIR", "/psbt-signer/run/wallets")
@@ -68,12 +63,12 @@ with open(pub_file, "w") as f:
     f.write(pub_desc)
 
 with open(xpub_file, "w") as f:
-    f.write(xpub_string)
+    f.write(str(xpub))
 
 with open(meta_file, "w") as f:
     json.dump({
         "network": NETWORK,
-        "fingerprint": fingerprint_hex,
+        "fingerprint": master_fingerprint_hex,
         "xpub_file": xpub_file,
         "descriptor": pub_desc
     }, f, indent=2)

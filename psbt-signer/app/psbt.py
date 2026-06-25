@@ -30,7 +30,7 @@ def decode_psbt(psbt_b64: str) -> PSBT:
 
 def extract_rawtx(psbt: PSBT) -> str:
     try:
-        tx = psbt.psbt.tx                        #Ist final kontrolle, failed, wenn es nciht funktioniert
+        tx = psbt.tx                        #Ist final kontrolle, failed, wenn es nciht funktioniert
         return tx.serialize().hex()
     except Exception as e:
         raise PSBTError(f"EXTRACT_FAILED: {e}")

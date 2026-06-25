@@ -103,7 +103,7 @@ async def sign(request: Request):
         raise HTTPException(500, str(e))
     
 
-    #Hot-Tx worfflow
+    #Hot-Tx worflow
     if data.get("wallet_type") == "hot":
         # FINALIZE PSBT
         try:
