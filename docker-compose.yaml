@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     environment:
       SERVICE_NAME: psbt-signer
-      NETWORK: regtest
+      NETWORK: test
       BTC-NETWORK_IP: 192.168.99.58
       BTC-NETWORK_PORT: 18443
 

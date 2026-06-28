@@ -9,6 +9,9 @@ from embit.networks import NETWORKS
 import sys
 from binascii import hexlify
 
+from tpm import get_entropy_from_tpm
+
+NETWORK_SYS = os.getenv("NETWORK","mainnet")
 
 STATE_DIR = "/psbt-signer/tpm"
 
@@ -17,9 +20,9 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.dirname(SCRIPT_DIR)
 sys.path.append(PARENT_DIR)
 
-from tpm import get_entropy_from_tpm
 
-NETWORK = "test"
+
+NETWORK = NETWORK_SYS
 
 
 entropy = get_entropy_from_tpm()
