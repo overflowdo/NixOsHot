@@ -659,7 +659,7 @@ Regeln:
 * Der Seed wird nicht persistent gespeichert.
 * Der Private Key wird nicht exportiert.
 * Das Schlüsselmaterial verlässt die VM nicht.
-* Nach jeder Erzeugung des Elements tiefer in der Kette des Schlüsselmaterials wird das obere Element direkt aus dem RAM gelöscht.
+* Nach jeder Erzeugung des Elements tiefer in der Kette des Schlüsselmaterials wird die Referenz auf das höhere Element direkt aus dem RAM gelöscht.
 
 ***
 
