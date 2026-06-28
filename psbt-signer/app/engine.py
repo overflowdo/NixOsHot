@@ -18,7 +18,7 @@ def sign_psbt(psbt: PSBT):
 
     root = HDKey.from_seed(seed, version=network_config["xprv"])
 
-    root.fingerprint = root.to_public().fingerprint
+    root.fingerprint = root.my_fingerprint
 
 
     psbt.sign_with(root)

@@ -37,7 +37,7 @@ network_config = NETWORKS[NETWORK]
 root = HDKey.from_seed(seed, version=network_config["xprv"])
 del seed
 
-master_fingerprint_hex = hexlify(root.to_public().fingerprint).decode()
+master_fingerprint_hex = hexlify(root.my_fingerprint).decode()
 
 xpub = root.derive(derivation_path).to_public()
 del root
@@ -68,6 +68,8 @@ with open(xpub_file, "w") as f:
 with open(meta_file, "w") as f:
     json.dump({
         "network": NETWORK,
+        "wallet_name": "keyA",
+        "wallet_type": "hot",
         "fingerprint": master_fingerprint_hex,
         "xpub_file": xpub_file,
         "descriptor": pub_desc

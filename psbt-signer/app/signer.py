@@ -8,7 +8,6 @@ from .auth import verify_request, AuthError
 from .psbt import (
     decode_psbt,
     encode_psbt,
-    extract_rawtx,
     psbt_serialize,
     PSBTError
 )
@@ -103,33 +102,14 @@ async def sign(request: Request):
         raise HTTPException(500, str(e))
     
 
-    #Hot-Tx worflow
-    if data.get("wallet_type") == "hot":
-        # FINALIZE PSBT
-        try:
-            #extract directly
-            raw_tx_final = extract_rawtx(psbt_signed)
-
-        except PSBTError as e:
-            raise HTTPException(500, f"FINALIZE_OR_EXTRACT_FAILED: {e}")
-        
+    try:
         response.update({
             "wallet_type": data.get("wallet_type"),
-            "rawtx_hex": raw_tx_final,
-            "sha256": hashlib.sha256(bytes.fromhex(raw_tx_final)).hexdigest()
+            "psbt": encode_psbt(psbt_signed),
+            "sha256": hashlib.sha256(psbt_serialize(psbt_signed)).hexdigest()
         })
-    
-    #Refill workflow
-    else:
-        #refill = 2-of-3 / not finalizable here
-        try:
-            response.update({
-                "wallet_type": data.get("wallet_type"),
-                "signed_psbt_base64": encode_psbt(psbt_signed),
-                "sha256": hashlib.sha256(psbt_serialize(psbt_signed)).hexdigest()
-            })
-        except PSBTError as e:
-            raise HTTPException(500, str(e))
+    except PSBTError as e:
+        raise HTTPException(500, str(e))
 
 
     return response
