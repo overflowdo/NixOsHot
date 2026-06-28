@@ -16,19 +16,17 @@ from .engine import sign_psbt
 import hashlib
 from psycopg.errors import UniqueViolation
 
+SIGNER_HMAC_SECRET = "/psbt-signer/run/secrets/hmac.secret"
+with open(SIGNER_HMAC_SECRET, "r") as f:
+    SIGNING_SECRET = bytes.fromhex(f.read().strip())
+
 app = FastAPI()
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s %(name)s: %(message)s"
 )
-
 log = logging.getLogger(__name__)
-
-SIGNER_HMAC_SECRET = "/psbt-signer/run/secrets/hmac.secret"
-
-with open(SIGNER_HMAC_SECRET, "r") as f:
-    SIGNING_SECRET = bytes.fromhex(f.read().strip())
 
 
 @app.post("/sign")
@@ -87,13 +85,11 @@ async def sign(request: Request):
         "psbt_id": data.get("psbt_id")
     }
     
-
     #Decode
     try:
         psbt = decode_psbt(psbt_b64)
     except PSBTError as e:
         raise HTTPException(400, str(e))
-
 
     #Sign
     try:
@@ -101,7 +97,6 @@ async def sign(request: Request):
     except Exception as e:
         raise HTTPException(500, str(e))
     
-
     try:
         response.update({
             "wallet_type": data.get("wallet_type"),

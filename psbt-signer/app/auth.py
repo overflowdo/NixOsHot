@@ -9,12 +9,12 @@ class AuthError(Exception):
 
 
 def verify_request(secret: str, body: bytes, ts: str, nonce: str, sig: str):
-    # 1. replay protection (time window)
+    #replay protection (time window)
     now = int(time.time())
-    if abs(now - int(ts)) > 30:    #replay schutz
+    if abs(now - int(ts)) > 30:    #replay schutz: 30 sek
         raise AuthError("STALE_REQUEST")
 
-    # 2. HMAC verification
+    #HMAC verification
     msg = ts.encode() + nonce.encode() + body
 
     expected = hmac.new(

@@ -15,9 +15,8 @@ def rollback():
     with conn() as c:
         c.rollback()
 
-#UTXOs
 
-#State logging für psbts (unterscheidung zu intent möglcih, aber unnötig kompliziert)
+#State logging für psbts
 def insert_psbt(psbt: dict):
     with conn() as c:
         with c.cursor() as cur:

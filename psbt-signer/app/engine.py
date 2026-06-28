@@ -13,7 +13,7 @@ def sign_psbt(psbt: PSBT):
 
     network_config = NETWORKS[NETWORK_SYS]
 
-    # 1. POLICY CHECK (SECURITY GATE)
+    #Policy Check Form PSBT
     validate(psbt)
 
     entropy = get_entropy_from_tpm()
@@ -27,7 +27,6 @@ def sign_psbt(psbt: PSBT):
     del seed
 
     root.fingerprint = root.my_fingerprint
-
 
     psbt.sign_with(root)
     del root

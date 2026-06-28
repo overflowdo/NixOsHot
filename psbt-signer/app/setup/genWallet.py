@@ -6,23 +6,12 @@ from embit import bip39
 from embit.bip32 import HDKey
 from embit.descriptor import Descriptor
 from embit.networks import NETWORKS
-import sys
 from binascii import hexlify
 
-from tpm import get_entropy_from_tpm
+from app.tpm import get_entropy_from_tpm
 
 NETWORK_SYS = os.getenv("NETWORK","mainnet")
-
 STATE_DIR = "/psbt-signer/tpm"
-
-# Errechnet den Pfad zu 'scripts/' (ein Ordner über 'setup/')
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PARENT_DIR = os.path.dirname(SCRIPT_DIR)
-sys.path.append(PARENT_DIR)
-
-
-
-NETWORK = NETWORK_SYS
 
 
 entropy = get_entropy_from_tpm()
@@ -35,7 +24,7 @@ seed = bip39.mnemonic_to_seed(mnemonic)
 del mnemonic
 
 #Angabe testnet zum bilden tpub statt xpub
-network_config = NETWORKS[NETWORK]
+network_config = NETWORKS[NETWORK_SYS]
 
 root = HDKey.from_seed(seed, version=network_config["xprv"])
 del seed

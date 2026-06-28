@@ -4,8 +4,8 @@ import sys
 import os
 import subprocess
 
-
 STATE_DIR = "/psbt-signer/tpm"
+
 
 def get_entropy_from_tpm():
     sealed_ctx = os.path.join(STATE_DIR, "sealed.ctx")
