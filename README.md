@@ -28,12 +28,12 @@ Die Key‑A‑VM ist der automatisierte Signer für Key A.
 Aufgaben:
 * Entgegennahme von PSBTs über eine HTTP API
 * HMAC‑Prüfung eingehender Requests
-* SHA256 Überrpüfung der Integrität von übermittelten PSBTs
+* SHA256 Überprüfung der Integrität von übermittelten PSBTs
 * Deduplication Check über gespeicherte PSBT IDs
 * Entsiegelung der Entropie über TPM
 * Ableitung des Privaten Keys im RAM
 * Signierung über embit
-* Rückgabe der signierten PSBT oder finalisierten Hot‑Transaktion
+* Rückgabe der signierten PSBT
 
 Die Key‑A‑VM enthält:
 * den Docker‑basierten Signer
@@ -55,7 +55,7 @@ Es kommuniziert ausschließlich über den definierten WireGuard‑Kanal mit Key 
 Aufgaben:
 * Erstellung der PSBT
 * Übergabe der PSBT an Key A
-* Empfang der signierten PSBT oder finalisierten Hot‑Transaktion
+* Empfang der signierten PSBT
 * Weiterverarbeitung im Hot‑Wallet‑Kontext
 
 Regeln:
@@ -234,7 +234,7 @@ Empfehlung:
 Der 24 Wörter mnemonic Seed phrase wird in der Doku der one-Shot Initialisierung ausgegeben.
 Es wird empfohlen diese über den Status des service Programs einzusehen und physisch zu notieren:
 ```bash
-systemctl status signer-intit
+systemctl status signer-init
 ```
 
 Zudem sollte das Log daraufhin gelöscht werden:
@@ -449,7 +449,7 @@ sudo wgHMAC_export.sh
 /mnt/usb/wallet/hot/metadata.json
 ```
 
-8. Das Wechselmedium kann im Basissystem eingehangen werden, um WireGuard Peer, HMAC Secret und Wallet‑Informationen zu extraheiren.
+8. Das Wechselmedium kann im Basissystem eingehangen werden, um WireGuard Peer, HMAC Secret und Wallet‑Informationen zu extrahieren.
 
 Hinweis:
 Es wird ausschließlich öffentliches Wallet‑Material exportiert. Das HMAC Secret dient nur der API‑Authentifizierung. Private Schlüsselmaterialien werden nicht exportiert.
@@ -521,11 +521,7 @@ Der Request enthält:
 * PSBT als Base64
 * SHA256 Hash der PSBT
 * PSBT ID
-* Wallet Type
-* Timestamp
-* Nonce
-* HMAC Signature
-
+  
 Header:
 ```bash
 X-Timestamp
@@ -671,16 +667,16 @@ Regeln:
 
 Es wird die signierte PSBT mit dem SHA256 Hash zurückgegeben
 ```bash
-psbt_signed
+psbt
 sha256
 ```
 
 ### 1.9 Weiterverarbeitung auf dem Basis-System
 Diese wird anschließend von dem Basis-System basierend auf dem Wallet-Typen (Hot oder Cold) weiterverarbeitet
 
-Hot-Wallet Transaktion werden direkt über Bitcoin Core Finalisiert und schließend auf der blockchain broadcasted.
+Hot-Wallet Transaktion werden direkt über Bitcoin Core finalisiert und schließend auf der blockchain broadcasted.
 
-Für Cold-Wallets wird ein menschlicher Operant benachrichtigt, der den manuellen Workflows des Code-Wallets fortsetzt.
+Für Cold-Wallets wird ein menschlicher Operant benachrichtigt, der den manuellen Workflows des Cold-Wallets fortsetzt.
 Es folgt die Signatur durch Key B oder Key C und anschließend die Finalisierung und Broadcasting im Basis-System
 
 ***
@@ -706,7 +702,7 @@ Es folgt die Signatur durch Key B oder Key C und anschließend die Finalisierung
 
 ***
 
-# 4. Hilfsprogramme
+# 3. Hilfsprogramme
 
 Die bereitgestellten Skripte unterstützen den operativen Ablauf und die initiale Einrichtung der Key‑A‑VM.
 Sie ersetzen keine Sicherheitsentscheidung, sondern automatisieren definierte Setup‑ und Betriebsaufgaben.
@@ -881,9 +877,9 @@ Einsatz:
 
 ***
 
-# 5. Sicherheitsmodell
+# 4. Sicherheitsmodell
 
-### 5.1 Kommunikationssicherheit
+### 4.1 Kommunikationssicherheit
 Die Kommunikation zwischen Basissystem und Key‑A‑VM ist zweistufig abgesichert.
 
 Schicht 1:
@@ -901,7 +897,7 @@ Dadurch wird verhindert, dass beliebige Systeme Signieranfragen an Key A senden 
 
 ***
 
-### 5.2 Schlüsselmaterial
+### 4.2 Schlüsselmaterial
 
 Das Schlüsselmaterial wird nicht dauerhaft als Private Key gespeichert.
 
@@ -914,7 +910,7 @@ Speicherprinzip:
 
 ***
 
-### 5.3 TPM Bindung
+### 4.3 TPM Bindung
 
 Die Entsiegelung nutzt PCR 7.
 Dadurch ist die Entsiegelung an den erwarteten Systemzustand gebunden.
@@ -923,7 +919,7 @@ Dadurch sollen manipulationen des System erkannt und vor Extraktion des Schlüss
 
 ***
 
-### 5.4 PSBT‑Policy
+### 4.4 PSBT‑Policy
 Die Policy prüft die Mindeststruktur der PSBT.
 
 Geprüft wird:
@@ -937,7 +933,7 @@ Ungültige PSBTs werden nicht signiert.
 
 ***
 
-### 5.5 Deduplication
+### 4.5 Deduplication
 
 Jede PSBT ID wird gespeichert.
 Bereits bekannte PSBT IDs führen zu:
@@ -949,7 +945,7 @@ Dadurch wird verhindert, dass dieselbe PSBT mehrfach verarbeitet wird.
 
 ***
 
-# 6. Ergebnis
+# 5. Ergebnis
 
 Nach erfolgreichem Setup stellt die Key‑A‑VM einen isolierten und automatisierten Signer bereit.
 Damit bildet die Key‑A‑VM den automatisierten Signaturpunkt des Hot‑Kontexts, ohne das private Schlüsselmaterial an das Basissystem zu übergeben.
