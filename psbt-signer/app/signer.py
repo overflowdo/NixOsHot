@@ -73,14 +73,6 @@ async def sign(request: Request):
             detail="sha256 mismatch (PSBT tampering detected)"
         )
 
-    try:
-        insert_psbt(data)
-    except UniqueViolation:
-        return {
-            "status": "ALREADY_PROCESSED",
-            "psbt_id": data.get("psbt_id")
-        }
-
     response = {
         "psbt_id": data.get("psbt_id")
     }
@@ -98,8 +90,15 @@ async def sign(request: Request):
         raise HTTPException(500, str(e))
     
     try:
+        insert_psbt(data)
+    except UniqueViolation:
+        return {
+            "status": "ALREADY_PROCESSED",
+            "psbt_id": data.get("psbt_id")
+        }
+    
+    try:
         response.update({
-            "wallet_type": data.get("wallet_type"),
             "psbt": encode_psbt(psbt_signed),
             "sha256": hashlib.sha256(psbt_serialize(psbt_signed)).hexdigest()
         })

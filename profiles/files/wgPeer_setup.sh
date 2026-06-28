@@ -68,7 +68,7 @@ cat <<EOF > "$WG_CONF"
 [Interface]
 Address = 10.10.0.2/32
 PrivateKey = $PRIV_KEY
-ListenPort = 34698
+ListenPort = 51820
 SaveConfig = true
 
 [Peer]

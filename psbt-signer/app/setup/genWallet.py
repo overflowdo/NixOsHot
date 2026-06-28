@@ -6,19 +6,27 @@ from embit import bip39
 from embit.bip32 import HDKey
 from embit.descriptor import Descriptor
 from embit.networks import NETWORKS
+import sys
 from binascii import hexlify
 
-from app.tpm import get_entropy_from_tpm
+from tpm import get_entropy_from_tpm
 
 NETWORK_SYS = os.getenv("NETWORK","mainnet")
 STATE_DIR = "/psbt-signer/tpm"
+
+# Errechnet den Pfad zu 'scripts/' (ein Ordner über 'setup/')
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PARENT_DIR = os.path.dirname(SCRIPT_DIR)
+sys.path.append(PARENT_DIR)
 
 
 entropy = get_entropy_from_tpm()
 mnemonic = bip39.mnemonic_from_bytes(entropy)
 del entropy
 
-derivation_path = "m/84h/1h/0h"    #1 für testnet, 0 für mainnet
+#1 für testnet, 0 für mainnet
+if NETWORK_SYS == "mainnet": derivation_path = "m/84h/0h/0h"
+else: derivation_path = "m/84h/1h/0h"
 
 seed = bip39.mnemonic_to_seed(mnemonic)
 del mnemonic
@@ -59,7 +67,7 @@ with open(xpub_file, "w") as f:
 
 with open(meta_file, "w") as f:
     json.dump({
-        "network": NETWORK,
+        "network": NETWORK_SYS,
         "wallet_name": "keyA",
         "wallet_type": "hot",
         "fingerprint": master_fingerprint_hex,

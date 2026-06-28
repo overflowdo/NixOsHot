@@ -49,7 +49,7 @@ in
       ${pkgs.docker}/bin/docker compose build
 
       echo "[*] switching to locked mode"
-      #${pkgs.nftables}/bin/nft -f /etc/nixos/profiles/nftables-locked.conf
+      ${pkgs.nftables}/bin/nft -f /etc/nixos/profiles/nftables-locked.conf
 
       ${pkgs.docker}/bin/docker compose up -d
 
