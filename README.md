@@ -91,7 +91,7 @@ Der TPM dient zur Absicherung der Entropie, aus der der Private Key rekonstruier
 
 Aufgaben:
 * Versiegelung der 32‑Byte Entropie
-* Bindung der Entsiegelung an PCR 7
+* Bindung der Entsiegelung an PCR 4, 8, 9, 11
 * Freigabe der Entropie nur bei passendem Systemzustand
 
 Das TPM speichert nicht die 24 Wörter.
@@ -215,7 +215,7 @@ Auch kann es sein, das TPM nicht nativ, die Kurve des Bitcoin Algortihmus unter�
 TPM‑Ablauf:
 1. Erstellung eines Primary Keys
 2. Start einer Trial Authorization Session
-3. Erzeugung einer PCR‑Policy auf Basis von PCR 7
+3. Erzeugung einer PCR‑Policy auf Basis von PCR 4, 8, 9, 11
 4. Versiegelung der Entropie
 5. Speichern der TPM‑Artefakte
 
@@ -621,7 +621,7 @@ Ablauf:
 ```
 
 2. Start einer Policy Session
-3. Laden des aktuellen PCR‑7 Zustands
+3. Laden des aktuellen PCR‑4, -8, -9, -11 Zustands
 4. Entsiegelung mit:
 ```bash
 tpm2_unseal
@@ -634,7 +634,8 @@ Regel:
 Die Session wird immer bereinigt, auch wenn ein Fehler auftritt.
 
 Hinweis:
-Wenn PCR 7 nicht dem erwarteten Zustand entspricht, schlägt der TPM Zugriff fehl.
+Wenn PCR 4, 8, 9, 11 nicht dem erwarteten Zustand entspricht, schlägt der TPM Zugriff fehl.
+Dies soll der Fall sein, wenn ein rebuild + switch in NixOS vorgenommen wurde, mit dem ein Angreifer das system hardening entfernen hätte können.
 
 ***
 
@@ -691,7 +692,7 @@ Es folgt die Signatur durch Key B oder Key C und anschließend die Finalisierung
 * Es werden ausschließlich PSBTs verarbeitet.
 * Das Schlüsselmaterial verlässt die VM nicht.
 * Entropie wird im TPM versiegelt.
-* Entsiegelung ist an PCR 7 gebunden.
+* Entsiegelung ist an PCR 4, 8, 9, 11 gebunden.
 * Der Private Key wird nur im RAM rekonstruiert.
 * Bereits verarbeitete PSBT IDs werden erkannt.
 * Doppelte PSBTs werden nicht erneut signiert.
@@ -912,7 +913,7 @@ Speicherprinzip:
 
 ### 4.3 TPM Bindung
 
-Die Entsiegelung nutzt PCR 7.
+Die Entsiegelung nutzt PCR 4, 8, 9, 11.
 Dadurch ist die Entsiegelung an den erwarteten Systemzustand gebunden.
 Wenn sich der relevante Boot‑ oder Policy‑Zustand ändert, schlägt die Entsiegelung fehl.
 Dadurch sollen manipulationen des System erkannt und vor Extraktion des Schlüsselmaterials geschützt werden
