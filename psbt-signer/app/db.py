@@ -23,13 +23,11 @@ def insert_psbt(psbt: dict):
             cur.execute("""
                 INSERT INTO btc.psbt (
                     psbt_id,
-                    wallet_type,
                     sha256
                 )
-                VALUES (%s,%s,%s)
+                VALUES (%s,%s)
             """, (
                 psbt.get("psbt_id"),
-                psbt.get("wallet_type"),
                 psbt.get("sha256")
             ))
         c.commit()

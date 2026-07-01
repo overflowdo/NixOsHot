@@ -23,7 +23,6 @@
     "net.ipv4.conf.all.rp_filter" = 1;
     "net.ipv4.conf.default.rp_filter" = 1;
     "kernel.randomize_va_space" = 2;
-    "net.ipv4.ip_forward" = 0;
     "net.ipv6.conf.all.disable_ipv6" = 1;
     "net.ipv6.conf.default.disable_ipv6" = 1;
     "net.ipv4.conf.all.route_localnet" = 0;

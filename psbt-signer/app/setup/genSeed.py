@@ -5,7 +5,7 @@ import sys
 import subprocess
 from embit import bip39
 
-STATE_DIR = "/var/lib/signer/initialized"
+STATE_DIR = "/psbt-signer/tpm"
 INIT_MARKER = os.path.join(STATE_DIR, "initialized")
 
 
@@ -19,43 +19,46 @@ entropy = os.urandom(32)
 
 #In BIP-39 Wörter umwandeln (nur für Ausgabe zum Aufschreiben)
 mnemonic_phrase = bip39.mnemonic_from_bytes(entropy)
-print(f"Generierte Phrase (wird NICHT TPM gespeichert, spätere Bildung aus Entropie):\n{mnemonic_phrase}")
-del mnemonic_phrase
 
-print("TPM Primary Key")
-primary_ctx = os.path.join(STATE_DIR, "primary.ctx")
-subprocess.run([
-    "tpm2_createprimary",
-    "-C", "o",
-    "-g", "sha256",
-    "-G", "ecc", 
-    "-c", primary_ctx
-], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+try:
+    print("TPM Primary Key")
+    primary_ctx = os.path.join(STATE_DIR, "primary.ctx")
+    subprocess.run([
+        "tpm2_createprimary",
+        "-C", "o",
+        "-g", "sha256",
+        "-G", "ecc", 
+        "-c", primary_ctx
+    ], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-print("versiegeln")
-seal_pub = os.path.join(STATE_DIR, "seal.pub")
-seal_priv = os.path.join(STATE_DIR, "seal.priv")
-sealed_ctx = os.path.join(STATE_DIR, "sealed.ctx")
+    print("versiegeln")
+    seal_pub = os.path.join(STATE_DIR, "seal.pub")
+    seal_priv = os.path.join(STATE_DIR, "seal.priv")
+    sealed_ctx = os.path.join(STATE_DIR, "sealed.ctx")
 
-#PCR als Autoriserung nehmen
-session_ctx = os.path.join(STATE_DIR, "session.ctx")
-policy_file = os.path.join(STATE_DIR, "pcr.policy")
+    #PCR als Autoriserung nehmen
+    session_ctx = os.path.join(STATE_DIR, "session.ctx")
+    policy_file = os.path.join(STATE_DIR, "pcr.policy")
 
-#Starte eine Autorisierungssitzung (Trial Session)
-subprocess.run([
-    "tpm2_startauthsession",
-    "-S", session_ctx
-], check=True)
+    #Starte eine Autorisierungssitzung (Trial Session)
+    subprocess.run([
+        "tpm2_startauthsession",
+        "-S", session_ctx
+    ], check=True)
 
-#Berechne die Policy basierend auf dem aktuellen Zustand von PCR 7
-subprocess.run([
-    "tpm2_policypcr", "-S", session_ctx, "-l", "sha256:7", "-L", policy_file
-], check=True)
+    #Berechne die Policy basierend auf dem aktuellen Zustand von PCR 4, 8, 9 und 11
+    subprocess.run([
+        "tpm2_policypcr",
+        "-S", session_ctx,
+        "-l", "sha256:4,8,9,11",    #PCR 4,8,9,11 um tpm nach rebuild-switch von NixOS unbrauchbar zu machen
+        "-L", policy_file
+    ], check=True)
 
-#Sitzungskontext schließen und aufräumen
-subprocess.run(["tpm2_flushcontext", session_ctx], check=True)
-if os.path.exists(session_ctx):
-    os.remove(session_ctx)
+finally:
+    #Sitzungskontext schließen und aufräumen
+    subprocess.run(["tpm2_flushcontext", session_ctx], check=True)
+    if os.path.exists(session_ctx):
+        os.remove(session_ctx)
 
 process = subprocess.Popen([
     "tpm2_create", 
@@ -76,6 +79,30 @@ del entropy
 if process.returncode != 0:
     print(f"Fehler beim Versiegeln im TPM: {stderr.decode()}", file=sys.stderr)
     sys.exit(1)
+
+PERSISTENT_HANDLE = "0x81010001"
+
+# evtl. altes Objekt am Handle lösen (Re-Init), Fehler ignorieren
+subprocess.run([
+    "tpm2_evictcontrol",
+    "-C", "o",
+     "-c", PERSISTENT_HANDLE
+     ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+# versiegeltes Objekt dauerhaft im TPM verankern
+subprocess.run([
+    "tpm2_evictcontrol",
+    "-C", "o",
+    "-c", sealed_ctx,
+    PERSISTENT_HANDLE
+    ], check=True, stdout=subprocess.DEVNULL)
+
+#Schreiben einer Datei nur auf root
+SEED_OUT = "/psbt-signer/run/wallets/SEED_PHRASE.txt"
+with open(SEED_OUT, "w") as f:
+    f.write(mnemonic_phrase + "\n")
+os.chmod(SEED_OUT, 0o400)
+del mnemonic_phrase
 
 with open(INIT_MARKER, "w") as f:
     f.write("1")

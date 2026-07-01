@@ -4,17 +4,21 @@ from fastapi import FastAPI, Request, HTTPException
 import json
 import base64
 import logging
+import hashlib
+from psycopg.errors import UniqueViolation
+
 from .auth import verify_request, AuthError
+from .db import insert_psbt
+from .engine import sign_psbt
+from .replay import claim_nonce
 from .psbt import (
     decode_psbt,
     encode_psbt,
     psbt_serialize,
     PSBTError
 )
-from .db import insert_psbt
-from .engine import sign_psbt
-import hashlib
-from psycopg.errors import UniqueViolation
+
+
 
 SIGNER_HMAC_SECRET = "/psbt-signer/run/secrets/hmac.secret"
 with open(SIGNER_HMAC_SECRET, "r") as f:
@@ -40,15 +44,14 @@ async def sign(request: Request):
     log.info(
         "received psbt",
         extra={
-            "ts": ts,
-            "nonce": nonce,
-            "sig": sig,
+            "ts": ts
         }
     )
 
-    #Verify HMAC key
+    #Verify HMAC key und none
     try:
         verify_request(SIGNING_SECRET, body, ts, nonce, sig)
+        claim_nonce(nonce)
     except AuthError as e:
         raise HTTPException(401, str(e))
 
@@ -64,9 +67,13 @@ async def sign(request: Request):
     if not psbt_b64:
         raise HTTPException(400, "missing psbt_base64")
     
-    psbt_bytes = base64.b64decode(psbt_b64)
+    
+    try:
+        psbt_bytes = base64.b64decode(psbt_b64, validate=True)
+    except Exception:
+        raise HTTPException(400, "invalid base64 psbt")
 
-    #sha256 check. gegen manipulationd der psbt
+    #sha256 check. gegen manipulationd der psbt (eigentlcih redundant mit HMAC)
     if hashlib.sha256(psbt_bytes).hexdigest() != data.get("sha256"):
         raise HTTPException(
             status_code=400,
@@ -76,17 +83,12 @@ async def sign(request: Request):
     response = {
         "psbt_id": data.get("psbt_id")
     }
-    
-    #Decode
-    try:
-        psbt = decode_psbt(psbt_b64)
-    except PSBTError as e:
-        raise HTTPException(400, str(e))
 
     #Sign
     try:
-        psbt_signed = sign_psbt(psbt)
+        psbt_signed = sign_psbt(decode_psbt(psbt_b64))
     except Exception as e:
+        log.exception("signing failed")
         raise HTTPException(500, str(e))
     
     try:

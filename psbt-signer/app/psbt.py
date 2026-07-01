@@ -7,13 +7,6 @@ class PSBTError(Exception):
     pass
 
 
-def load_psbt(psbt_bytes: bytes) -> PSBT:
-    try:
-        return PSBT.parse(psbt_bytes)
-    except Exception as e:
-        raise PSBTError(f"INVALID_PSBT: {e}")
-
-
 def encode_psbt(psbt: PSBT) -> str:
     try:
         return base64.b64encode(psbt.serialize()).decode()
@@ -27,5 +20,5 @@ def decode_psbt(psbt_b64: str) -> PSBT:
     except Exception as e:
         raise PSBTError(f"DECODE_FAILED: {e}")
     
-def psbt_serialize(psbt: PSBT) -> str:
-        return psbt.serialize()
+def psbt_serialize(psbt: PSBT) -> bytes:
+    return psbt.serialize()

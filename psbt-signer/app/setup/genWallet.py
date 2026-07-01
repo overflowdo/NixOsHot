@@ -6,27 +6,22 @@ from embit import bip39
 from embit.bip32 import HDKey
 from embit.descriptor import Descriptor
 from embit.networks import NETWORKS
-import sys
 from binascii import hexlify
 
-from tpm import get_entropy_from_tpm
+from app.tpm import get_entropy_from_tpm
 
-NETWORK_SYS = os.getenv("NETWORK","mainnet")
+NETWORK_SYS = os.getenv("NETWORK","main")
 STATE_DIR = "/psbt-signer/tpm"
 
-# Errechnet den Pfad zu 'scripts/' (ein Ordner über 'setup/')
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PARENT_DIR = os.path.dirname(SCRIPT_DIR)
-sys.path.append(PARENT_DIR)
 
 
 entropy = get_entropy_from_tpm()
 mnemonic = bip39.mnemonic_from_bytes(entropy)
 del entropy
 
-#1 für testnet, 0 für mainnet
-if NETWORK_SYS == "mainnet": derivation_path = "m/84h/0h/0h"
-else: derivation_path = "m/84h/1h/0h"
+# BIP84 coin_type: 0h = main, 1h = test/regtest/signet
+coin = "0h" if NETWORK_SYS == "main" else "1h"
+derivation_path = f"m/84h/{coin}/0h"
 
 seed = bip39.mnemonic_to_seed(mnemonic)
 del mnemonic
@@ -42,15 +37,15 @@ master_fingerprint_hex = hexlify(root.my_fingerprint).decode()
 xpub = root.derive(derivation_path).to_public()
 del root
 
-descriptor_format = f"wpkh([{master_fingerprint_hex}/84h/1h/0h]{xpub}/{{0,1}}/*)"
+# Key-Origin muss exakt dem Ableitungspfad entsprechen:
+descriptor_format = f"wpkh([{master_fingerprint_hex}/84h/{coin}/0h]{xpub}/{{0,1}}/*)"
 
 
 desc_obj = Descriptor.from_string(descriptor_format)
 pub_desc = str(desc_obj)
-print(pub_desc)
 
 # output Dir
-out_dir = os.environ.get("STATE_DIR", "/psbt-signer/run/wallets")
+out_dir = os.environ.get("WALLET_OUT_DIR", "/psbt-signer/run/wallets")
 os.makedirs(out_dir, exist_ok=True)
 
 pub_file = os.path.join(out_dir, "descriptor.public.txt")

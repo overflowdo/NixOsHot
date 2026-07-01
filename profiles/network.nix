@@ -2,8 +2,9 @@
 
 {
   networking.firewall.enable = false; # deaktivieren
-
-  networking.firewall.allowPing = false;
+  networking.nftables.enable = true;
+  networking.nftables.flushRuleset = false;                 # Docker-Tabellen nicht mitflushen
+  networking.nftables.rulesetFile = ./nftables-locked.conf;
 
   systemd.coredump.enable = false;
 
@@ -18,19 +19,9 @@
   #services.resolved.enable = false;
   #environment.etc."resolv.conf".text = "nameserver 127.0.0.1";
 
+  #Nur für docker build vor nftables
   networking.nameservers = [ "1.1.1.1" "8.8.8.8" ];
   services.resolved.enable = true;
 
-  systemd.services."-" = {
-    serviceConfig = {
-      RestrictAddressFamilies = [
-        "AF_INET"
-        "AF_INET6"
-        "AF_NETLINK"
-      ];
-    };
-  };
-
-  networking.nftables.enable = true;
   networking.usePredictableInterfaceNames = false;
 }

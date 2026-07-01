@@ -13,6 +13,9 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
+RUN (getent group 1000 || groupadd -g 1000 signer) \
+    && (getent passwd 1000 || useradd -u 1000 -g 1000 -M -s /usr/sbin/nologin signer)
+
 WORKDIR /app
 
 # Python dependencies
@@ -25,7 +28,10 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY . .
 
 # Create directories for persistent data
-RUN mkdir -p /data /wallets
+RUN mkdir -p /data /wallets \
+    && chown -R 1000:1000 /app /data /wallets
+
+USER 1000
 
 EXPOSE 8080
 
