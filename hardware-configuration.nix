@@ -20,7 +20,10 @@
     };
 
   swapDevices = [ ];
+  boot.kernel.sysctl."vm.swappiness" = 0;
+  zramSwap.enable = false;
 
-    #USB nur bewusst mounten
-    services.udisks2.enable = lib.mkForce false;
+  #USB nur bewusst mounten
+  services.udisks2.enable = lib.mkForce false;
+
 }

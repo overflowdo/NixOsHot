@@ -115,4 +115,8 @@ echo "[9/9] Install NixOS"
 export NIX_CONFIG="experimental-features = nix-command flakes"
 nixos-install --no-root-passwd --flake /mnt/etc/nixos#hot
 
+echo "[*] Removing install-only swapfile"
+swapoff /mnt/.swapfile 2>/dev/null || true
+rm -f /mnt/.swapfile
+
 echo "DONE. Remove ISO in Proxmox and reboot."
