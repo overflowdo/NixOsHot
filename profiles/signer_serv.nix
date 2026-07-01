@@ -73,7 +73,7 @@ in
       echo "[*] building signer container"
       ${pkgs.docker}/bin/docker compose build
 
-      ${pkgs.docker}/bin/docker compose pull postgres proxy
+      ${pkgs.docker}/bin/docker compose pull postgres proxy redis
 
       echo "[*] switching to locked mode"
       ${pkgs.nftables}/bin/nft -f /etc/nixos/profiles/nftables-locked.conf
