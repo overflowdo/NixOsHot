@@ -46,6 +46,7 @@ services:
      
   postgres:
     image: postgres:16
+    container_name: postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -63,8 +64,6 @@ services:
       - /tmp
     cap_drop:
       - ALL
-    cap_add:
-      - CHOWN
     security_opt:
       - no-new-privileges:true
     depends_on:
@@ -79,12 +78,10 @@ services:
     image: redis:7-alpine
     container_name: signer-redis
     restart: unless-stopped
-    user: "user"
+    user: "redis"
     read_only: true
     cap_drop:
       - ALL
-    cap_add:
-      - CHOWN
     security_opt:
       - no-new-privileges:true
     tmpfs:
