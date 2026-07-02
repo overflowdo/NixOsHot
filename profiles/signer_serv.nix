@@ -60,7 +60,7 @@ in
         echo "[*] generating postgres credentials"
         {
           echo "POSTGRES_USER=signer"
-          echo "POSTGRES_PASSWORD=$(${pkgs.openssl}/bin/openssl rand -base64 24)"
+          echo "POSTGRES_PASSWORD=$(${pkgs.openssl}/bin/openssl rand -hex 24)"
           echo "POSTGRES_DB=btc"
           echo "TPM_GID=$TPM_GID" 
         } > /var/lib/signer/.env

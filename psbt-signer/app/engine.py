@@ -29,13 +29,10 @@ def sign_psbt(psbt: PSBT):
 
     root.fingerprint = root.my_fingerprint
 
-    before = sum(len(inp.partial_sigs) for inp in psbt.inputs)
-
-    psbt.sign_with(root)
+    added = psbt.sign_with(root)
     del root
 
-    after = sum(len(inp.partial_sigs) for inp in psbt.inputs)
-    if after <= before:
+    if added == 0:
         raise ValueError("Signer hat keine Signatur hinzugefügt (Key passt nicht zur PSBT)")
-    
+        
     return psbt

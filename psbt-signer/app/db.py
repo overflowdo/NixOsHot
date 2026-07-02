@@ -2,12 +2,23 @@ import os
 import psycopg
 from psycopg.rows import dict_row
 
-DATABASE_URL = os.getenv("DATABASE_URL", "")
+DB_HOST = os.getenv("POSTGRES_HOST", "postgres")
+DB_PORT = int(os.getenv("POSTGRES_PORT", "5432"))
+DB_USER = os.getenv("POSTGRES_USER", "")
+DB_PASSWORD = os.getenv("POSTGRES_PASSWORD", "")
+DB_NAME = os.getenv("POSTGRES_DB", "")
 
 def conn():
-    if not DATABASE_URL:
-        raise RuntimeError("DATABASE_URL not configured")
-    return psycopg.connect(DATABASE_URL, row_factory=dict_row)
+    if not DB_USER or not DB_NAME:
+        raise RuntimeError("Postgres credentials not configured")
+    return psycopg.connect(
+        host=DB_HOST,
+        port=DB_PORT,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        dbname=DB_NAME,
+        row_factory=dict_row,
+    )
 
 
 #Wenn error auftritt, dass die DB zurückgerollt werden kann

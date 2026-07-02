@@ -231,15 +231,15 @@ Hinweis:
 Die Entsiegelung ist an den Systemzustand gebunden. Verändert sich der relevante PCR‑Zustand, kann die Entropie nicht erfolgreich entschlüsselt werden.
 
 Empfehlung:
-Der 24 Wörter mnemonic Seed phrase wird in der Doku der one-Shot Initialisierung ausgegeben.
-Es wird empfohlen diese über den Status des service Programs einzusehen und physisch zu notieren:
+Der 24 Wörter mnemonic Seed phrase wird in der Doku der one-Shot Initialisierung erstellt und anschließend als Datei auf dem Desktop gespeichert.
+Es wird empfohlen diese physisch zu notieren:
 ```bash
-systemctl status signer-init
+/Desktop/SEED_PHRASE.txt
 ```
 
-Zudem sollte das Log daraufhin gelöscht werden:
+Zudem sollte die Datei daraufhin durch das folgende Skript kontrolliert gelöscht werden:
 ```bash
-sudo journalctl --vacuum-time=5s
+/Desktop/Skripts/seed_delete.sh
 ```
 
 ***
@@ -574,8 +574,6 @@ Die PSBT wird nicht signiert.
 
 ### 1.4 Deduplication Check
 
-
-
 Vor der Signierung wird die PSBT ID gespeichert.
 
 Regel:
@@ -590,6 +588,8 @@ Zweck:
 * Verhindern mehrfacher Verarbeitung identischer PSBTs
 * Schutz gegen Replay‑Abläufe
 * klare Nachvollziehbarkeit bereits gesehener Signiervorgänge
+
+Dazu wird die Nonce in redis für den Gültigkeitszeitraum des Timestamps persistiert und kann so ein wiederholtes Übermitteln der Nonce erkennen und abblocken.
 
 ***
 
