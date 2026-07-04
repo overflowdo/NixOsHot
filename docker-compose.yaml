@@ -26,6 +26,10 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
 
+      VELOCITY_CAP_SATS: 40000000
+      VELOCITY_WINDOW_SEC: 86400
+      WALLET_METADATA: /psbt-signer/run/wallets/metadata.json
+
       REDIS_URL: redis://redis:6379/0 
 
       MAX_SKEW: 30 #replay protec

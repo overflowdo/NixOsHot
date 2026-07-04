@@ -7,12 +7,11 @@
 
     networking.hostName = "hot-keyA";
 
-    #User mit Sudo
     users.users.user = {
-        isNormalUser = true;
-        description = "Admin";
-        initialPassword = "changeme";
-        extraGroups = [ "wheel" ];
+      isNormalUser = true;
+      description = "Admin";
+      hashedPassword = "$6$MZj5odB7Ybpv3/rZ$eiX32rlH4uqjk9BsfSUeBhv7Pc4vMOCQrf73pP5b/EyLX9xIYTX0jqgQ/BjQ3sUeK/aePuwve3CYchIiYeDRh.";
+      extraGroups = [ "wheel" ];
     };
 
     security.sudo.wheelNeedsPassword = true;
@@ -29,8 +28,16 @@
         source = ./files/mnt-USB.sh;
         mode   = "0755";
     };
+    environment.etc."scripts/umnt-USB.sh" = {
+        source = ./files/umnt-USB.sh;
+        mode   = "0755";
+    };
     environment.etc."scripts/format-USB.sh" = {
         source = ./files/format-USB.sh;
+        mode   = "0755";
+    };
+    environment.etc."scripts/rotate_wgKey.sh" = {
+        source = ./files/rotate_wgKey.sh;
         mode   = "0755";
     };
     environment.etc."scripts/delete_seed.sh" = {
@@ -52,8 +59,16 @@
         source = ./files/wrappers/mnt-USB.sh;
         mode   = "0755";
     };
+    };environment.etc."scripts/wrappers/umnt-USB.sh" = {
+        source = ./files/wrappers/umnt-USB.sh;
+        mode   = "0755";
+    };
     environment.etc."scripts/wrappers/format-USB.sh" = {
         source = ./files/wrappers/format-USB.sh;
+        mode   = "0755";
+    };
+    environment.etc."scripts/wrappers/rotate_wgKey.sh" = {
+        source = ./files/wrappers/rotate_wgKey.sh;
         mode   = "0755";
     };
     environment.etc."scripts/wrappers/delete_seed.sh" = {
@@ -72,6 +87,8 @@
         "L+ /home/user/Desktop/scripts/wgPeer_setup.sh - - - - /etc/scripts/wrappers/wgPeer_setup.sh"
         "L+ /home/user/Desktop/scripts/format-USB.sh - - - - /etc/scripts/wrappers/format-USB.sh"
         "L+ /home/user/Desktop/scripts/mnt-USB.sh - - - - /etc/scripts/wrappers/mnt-USB.sh"
+        "L+ /home/user/Desktop/scripts/umnt-USB.sh - - - - /etc/scripts/wrappers/umnt-USB.sh"
+        "L+ /home/user/Desktop/scripts/rotate_wgKey.sh - - - - /etc/scripts/wrappers/rotate_wgKey.sh"
         "L+ /home/user/Desktop/scripts/delete_seed.sh - - - - /etc/scripts/wrappers/delete_seed.sh"
 
         #docker
@@ -88,16 +105,17 @@
     ];
 
     systemd.user.services.thunar-exec-shell-scripts = {
-    description = "Thunar: execute shell scripts by default";
-    wantedBy = [ "graphical-session.target" ];
-    serviceConfig = {
-        Type = "oneshot";
-        ExecStart = ''
-        ${pkgs.xfce.xfconf}/bin/xfconf-query \
-            --channel thunar \
-            --property /misc-exec-shell-scripts-by-default \
-            --create --type bool --set true
-        '';
+        description = "Thunar: execute shell scripts by default";
+        wantedBy = [ "graphical-session.target" ];
+        serviceConfig = {
+            Type = "oneshot";
+            ExecStart = ''
+            ${pkgs.xfce.xfconf}/bin/xfconf-query \
+                --channel thunar \
+                --property /misc-exec-shell-scripts-by-default \
+                --create --type bool --set true
+            '';
+        };
     };
-    };
+
 }

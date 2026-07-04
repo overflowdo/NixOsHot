@@ -18,6 +18,17 @@ Der Standardmodus ist:
 * Die Signierung erfolgt vollautomatisch in einem Docker‑Container.
 * Bereits verarbeitete PSBTs werden über einen Deduplication Check erkannt.
 
+## Systemhärtung – operative Auswirkungen
+
+Die Key-A-VM ist über NixOS deklarativ gehärtet (nftables default-drop, Kernel-Härtung,
+lockKernelModules, kein Auto-Mount, systemd-boot-Editor deaktiviert). Betrieblich relevant:
+
+* **Festplattenverschlüsselung (LUKS):** Bei jedem Start wird eine Disk-Passphrase abgefragt.
+* **Erreichbarkeit:** Die VM ist – anders als die Cold-Signer – nicht air-gapped, sondern
+  ausschließlich über den WireGuard-Port (UDP 51820) und den Tunnel erreichbar; sämtlicher
+  übriger Verkehr wird verworfen.
+* **Login:** Benutzer `user` mit dem beim Setup gesetzten Passwort (kein Standardpasswort).
+
 ***
 
 ## Rollen und Systeme
@@ -40,10 +51,10 @@ Die Key‑A‑VM enthält:
 * die TPM‑Artefakte
 * das HMAC Secret
 * WireGuard Konfiguration
-* den internen und öffentlichen öffentlichen Wallet‑Descriptor
+* den internen und öffentlichen Wallet‑Descriptor
 * den Xpub von Key A
 * Wallet‑Metadaten
-* Master FIngerprint
+* Master Fingerprint
   
 ***
 
@@ -209,8 +220,8 @@ Ablauf:
 5. Die 32‑Byte Entropie wird im TPM versiegelt.
 
 Hinweis: 
-Eine 24 Wörter Mnemoic seed phrase übersteigt das maximum von 128 byte für TPM.
-Auch kann es sein, das TPM nicht nativ, die Kurve des Bitcoin Algortihmus unterüstzt, weshalb sich für die Speicherung der Entropie entschieden wurde
+Eine 24 Wörter Mnemonic seed phrase übersteigt das maximum von 128 byte für TPM.
+Auch kann es sein, das TPM nicht nativ, die Kurve des Bitcoin Algorithmus unterstützt, weshalb sich für die Speicherung der Entropie entschieden wurde
 
 TPM‑Ablauf:
 1. Erstellung eines Primary Keys
@@ -239,7 +250,7 @@ Es wird empfohlen diese physisch zu notieren:
 
 Zudem sollte die Datei daraufhin durch das folgende Skript kontrolliert gelöscht werden:
 ```bash
-/Desktop/Skripts/seed_delete.sh
+/home/user/Desktop/scripts/seed_delete.sh
 ```
 
 ***
@@ -272,7 +283,7 @@ wpkh([fingerprint/84h/1h/0h]xpub/{0,1}/*)
 ```
 
 Hinweis:
-Der interne und Externe Deskriptor wird benötigt um Transaktion auf und vom dem Wallet kontruieren zu können-
+Der interne und Externe Deskriptor wird benötigt um Transaktion auf und vom dem Wallet konstruieren zu können
 
 Ergebnis:
 ```bash
@@ -504,6 +515,14 @@ Dies kann in folgendem befehl kontrolliert werden. Siehe "latest handshake"
 sudo wg show
 ```
 
+Ein Rotieren dieses Schlüssel ist möglich mit
+```bash
+/home/user/Desktop/scripts/wg-rotate.sh
+```
+
+Dies erstellt einen neuen privaten und öffentlichen wireguard Schlüssel und baut diesen als Interface Teil in das wg0 Interface ein.
+Dieser Schlüssel muss auf demselben Weg wie zurvor beschrieben im Basis-System wieder integriert werden.
+
 ***
 
 ## 1. Signierungsprozess
@@ -725,7 +744,7 @@ Einsatz:
 
 ***
 
-## psbt/setup/mnt\_usb.sh
+## /home/user/Desktop/scripts/mnt\_usb.sh
 
 Zweck:
 * standardisiertes Mounten des Wechselmediums
@@ -738,42 +757,36 @@ Einsatz:
 * vor Export oder Import von Setup‑Artefakten
 * beim kontrollierten Austausch mit dem Basissystem
 * Teil der vollautomatischen Scripten
-* Für einfache manuelle Vorgänge des Operanten
+* Für einfache manuelle Vorgänge des Operator
 
 ***
 
-## psbt/setup/umnt\_usb.sh
+## /home/user/Desktop/scripts/umnt\_usb.sh
 
 Zweck:
 
-* standardisiertes Unmounten des Wechselmediums
-* Synchronisieren ausstehender Schreibvorgänge
-* sauberes Entfernen des Mediums
-
-Einsatz:
-* nach jedem Setup‑Austausch
-* nach jedem Export oder Import
-* Teil der vollautomatischen Scripten
-* Für einfache manuelle Vorgänge des Operanten
+* standardisiertes Aushängen des Wechselmediums
+* Synchronisieren + sicheres Entfernen
 
 ***
 
-## psbt/setup/format\_usb.sh
+## /home/user/Desktop/scripts/format-usb.sh &lt;gerät&gt;
 
 Zweck:
 
-* vollständige Bereinigung des Wechselmediums
-* Entfernen alter Kommunikations‑ und Wallet‑Artefakte
-* definierter Ausgangszustand
-* Benennung des Wechselmediums
+* vollständige Bereinigung des Mediums
+* Entfernen alter PSBTs und Artefakte
+* vergibt das Volume-Label `USB`
 
 Einsatz:
-* vor Beginn eines neuen Setup‑Vorgangs
+
+* Zielgerät explizit angeben (z. B. `/dev/disk/by-id/...`), mit Sicherheitsabfrage
+* vor Beginn eines neuen Prozesses
 * bei Unsicherheiten über den Zustand des Mediums
 
 ***
 
-## wgHMAC\_export.sh
+## /home/user/Desktop/scripts/wgHMAC\_export.sh
 
 Zweck:
 * Export der Key‑A‑Kommunikationsdaten
@@ -799,7 +812,7 @@ Es werden keine privaten Schlüssel exportiert.
 
 ***
 
-## wgPeer\_setup.sh
+## /home/user/Desktop/scripts/wgPeer\_setup.sh
 
 Zweck:
 
@@ -824,7 +837,51 @@ Einsatz:
 
 ***
 
-## signer-init
+## /home/user/Desktop/scripts/wg-rotate.sh
+
+Zweck:
+
+* Rotation des WireGuard-Keypairs der Key-A-VM (Interface `wg0`)
+* Erzeugung eines neuen Private- und Public-Keys
+* Live-Anwendung des neuen Private-Keys auf `wg0`, ohne bestehende Peers zu verwerfen
+* Sicherung der alten Keys und Konfiguration
+
+Schreibt:
+```bash
+/var/lib/wireguard/private.key
+/var/lib/wireguard/public.key
+/etc/wireguard/wg0.conf            # PrivateKey-Zeile, falls Datei vorhanden
+/var/lib/wireguard/backup/         # timestamped Sicherung der alten Keys/Config
+```
+
+***
+
+## /home/user/Desktop/scripts/seed\_delete.sh
+
+Zweck:
+
+* Import des WireGuard Peers des Basissystems
+* Erstellung beziehungsweise Aktualisierung der WireGuard Konfiguration
+* Aktivierung des Peer‑Eintrags auf `wg0`
+
+Liest:
+```bash
+/communication/wireguard/wireguard.wallet.json
+```
+
+Schreibt:
+```bash
+/etc/wireguard/wg0.conf
+```
+
+Einsatz:
+* nach Export der Basissystem‑Peer‑Daten
+* bei Neuaufbau der Peer‑Beziehung
+* bei Wechsel des Basissystems
+
+***
+
+## systemd-Services: signer-init
 
 Zweck:
 * Initialisierung der Signer‑Identität
@@ -844,7 +901,7 @@ Einsatz:
 
 ***
 
-## generate-hmac-secret
+## systemd-Services: generate-hmac-secret
 
 Zweck:
 * Erzeugung des HMAC Secrets
@@ -861,7 +918,7 @@ Einsatz:
 
 ***
 
-## wg-keygen
+## systemd-Services: wg-keygen
 Zweck:
 * Erzeugung des WireGuard Keypairs
 * Bereitstellung der Schlüssel für `wg0`

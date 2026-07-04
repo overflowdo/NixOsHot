@@ -10,15 +10,13 @@ from psycopg.errors import UniqueViolation
 from .auth import verify_request, AuthError
 from .db import insert_psbt
 from .engine import sign_psbt
-from .replay import claim_nonce
+from .redis import hot_outflow_sats, check_and_record, VelocityError,claim_nonce
 from .psbt import (
     decode_psbt,
     encode_psbt,
     psbt_serialize,
     PSBTError
 )
-
-
 
 SIGNER_HMAC_SECRET = "/psbt-signer/run/secrets/hmac.secret"
 with open(SIGNER_HMAC_SECRET, "r") as f:
@@ -79,6 +77,14 @@ async def sign(request: Request):
             status_code=400,
             detail="sha256 mismatch (PSBT tampering detected)"
         )
+    
+    #velocity check
+    psbt_obj = decode_psbt(psbt_b64)
+    try:
+        check_and_record(data.get("psbt_id"), hot_outflow_sats(psbt_obj))
+    except VelocityError as e:
+        log.warning("velocity cap hit: %s", e)
+        raise HTTPException(429, str(e))
 
     response = {
         "psbt_id": data.get("psbt_id")
@@ -86,7 +92,7 @@ async def sign(request: Request):
 
     #Sign
     try:
-        psbt_signed = sign_psbt(decode_psbt(psbt_b64))
+        psbt_signed = sign_psbt(psbt_obj)
     except Exception as e:
         log.exception("signing failed")
         raise HTTPException(500, str(e))
