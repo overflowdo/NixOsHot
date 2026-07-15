@@ -26,7 +26,7 @@ def get_entropy_from_tpm():
         subprocess.run([
             "tpm2_policypcr", 
             "-S", session_ctx, 
-            "-l", "sha256:4,8,9,11"
+            "-l", "sha256:4,9,12"
         ], check=True, stdout=subprocess.DEVNULL)
 
 

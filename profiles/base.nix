@@ -10,7 +10,7 @@
     users.users.user = {
       isNormalUser = true;
       description = "Admin";
-      hashedPassword = "$6$MZj5odB7Ybpv3/rZ$eiX32rlH4uqjk9BsfSUeBhv7Pc4vMOCQrf73pP5b/EyLX9xIYTX0jqgQ/BjQ3sUeK/aePuwve3CYchIiYeDRh.";
+      hashedPassword = "$6$0WaCuKi42H/ej/1o$j.5kkHmnRP.H3asA9loD.gTjeIlEKozt2iMWEqHgHVoVnDpIqmF0dBWNynSFY24PhVYesKfZX6DIBnbV8MAE9.";
       extraGroups = [ "wheel" ];
     };
 
@@ -59,7 +59,7 @@
         source = ./files/wrappers/mnt-USB.sh;
         mode   = "0755";
     };
-    };environment.etc."scripts/wrappers/umnt-USB.sh" = {
+    environment.etc."scripts/wrappers/umnt-USB.sh" = {
         source = ./files/wrappers/umnt-USB.sh;
         mode   = "0755";
     };
@@ -110,7 +110,7 @@
         serviceConfig = {
             Type = "oneshot";
             ExecStart = ''
-            ${pkgs.xfce.xfconf}/bin/xfconf-query \
+            ${pkgs.xfconf}/bin/xfconf-query \
                 --channel thunar \
                 --property /misc-exec-shell-scripts-by-default \
                 --create --type bool --set true

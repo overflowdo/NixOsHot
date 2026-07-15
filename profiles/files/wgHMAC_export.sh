@@ -35,6 +35,7 @@ trap cleanup EXIT
 
 mkdir -p "$USB_MOUNT/communication"
 mkdir -p "$USB_MOUNT/wallet/hot"
+mkdir -p "$USB_MOUNT/wallet/cold"
 
 #File test
 FILES=(
@@ -43,6 +44,7 @@ FILES=(
   "/var/lib/signer/wallets/xpub.txt"
   "/var/lib/signer/wallets/descriptor.public.txt"
   "/var/lib/signer/wallets/metadata.json"
+  "/var/lib/signer/wallets/metadata.multisig.json"  
 )
 
 for f in "${FILES[@]}"; do
@@ -53,9 +55,6 @@ for f in "${FILES[@]}"; do
 done
 
 # optional
-
-
-
 # export raw files
 
 # wg
@@ -106,12 +105,17 @@ cp /var/lib/signer/hmac.secret \
 
 
 # Btc-wallet
+#84 single sig
 cp /var/lib/signer/wallets/xpub.txt \
   "$USB_MOUNT/wallet/hot/xpub.txt"
 cp /var/lib/signer/wallets/descriptor.public.txt \
   "$USB_MOUNT/wallet/hot/descriptor.public.txt"
 cp /var/lib/signer/wallets/metadata.json \
   "$USB_MOUNT/wallet/hot/metadata.json"
+
+#48 Multi sig
+cp /var/lib/signer/wallets/metadata.multisig.json \
+  "$USB_MOUNT/wallet/cold/keyA.meta.json"
 
 
 echo ""

@@ -269,14 +269,18 @@ Ablauf:
 2. Daraus wird die BIP‑39 Mnemonic rekonstruiert.
 3. Daraus wird der Seed gebildet.
 4. Daraus wird der HD Root Key erzeugt.
-5. Der Key wird über folgenden Pfad abgeleitet:
+5. Der Key wird über folgende Pfade abgeleitet:
 ```bash
 m/84h/1h/0h
+m/48h/1h/0h/2h
 ```
 
-6. Der Xpub wird erzeugt.
-7. Der öffentliche Descriptor wird erstellt.
+6. Die Xpubs werden erzeugt.
+7. Die öffentlichen Deskriptoren werden erstellt.
 
+***
+
+#### BIP84 Single-Signer (Hot)
 Interner und Externer Descriptor‑Format:
 ```bash
 wpkh([fingerprint/84h/1h/0h]xpub/{0,1}/*)
@@ -291,6 +295,39 @@ Ergebnis:
 /psbt-signer/run/wallets/xpub.txt
 /psbt-signer/run/wallets/metadata.json
 ```
+
+***
+
+#### BIP48 Multisig-Cosigner (Cold)
+
+`genWallet.py` leitet aus derselben Entropie zusätzlich den Cosigner-Schlüssel
+für das 2-aus-3-Cold-Wallet ab. Verwendet wird BIP48, Script-Typ 2
+(P2WSH, natives SegWit):
+
+```bash
+m/48h/1h/0h/2h
+```
+
+Key-Origin-Expression (geht 1:1 in den `wsh(sortedmulti(...))`-Descriptor
+des Cold-Wallets ein):
+
+```bash
+[fingerprint/48h/1h/0h/2h]xpub/<0;1>/*
+```
+
+Zusätzliche Ergebnis-Dateien (die 84h-Dateien bleiben unverändert):
+
+```bash
+/psbt-signer/run/wallets/descriptor.multisig.txt
+/psbt-signer/run/wallets/xpub.multisig.txt
+/psbt-signer/run/wallets/metadata.multisig.json
+```
+
+Wichtig: Für das Cold-Multisig ist ausschließlich der **48h**-Anteil zu verwenden, nicht der 84h-Single-Sig-xpub. 
+Beide stammen aus demselben Seed, gehören aber zu unterschiedlichen Ableitungspfaden. 
+Ein 84h-xpub unter einem 48h-Origin-Label führt dazu, dass Key A die Cold-PSBT nicht signieren kann.
+
+***
 
 Die Metadata Datei enthält:
 * Network
@@ -421,6 +458,7 @@ psbt/setup/format-USB.sh
 /var/lib/signer/wallets/xpub.txt
 /var/lib/signer/wallets/descriptor.public.txt
 /var/lib/signer/wallets/metadata.json
+/var/lib/signer/wallets/metadata.multisig.json
 ```
 
 Ablauf:
@@ -441,6 +479,7 @@ sudo wgHMAC_export.sh
 ```bash
 /mnt/usb/communication
 /mnt/usb/wallet/hot
+/mnt/usb/wallet/cold
 ```
 
 5. WireGuard Daten werden geschrieben nach:
@@ -458,6 +497,7 @@ sudo wgHMAC_export.sh
 /mnt/usb/wallet/hot/xpub.txt
 /mnt/usb/wallet/hot/descriptor.public.txt
 /mnt/usb/wallet/hot/metadata.json
+/mnt/usb/wallet/cold/keyA.meta.json
 ```
 
 8. Das Wechselmedium kann im Basissystem eingehangen werden, um WireGuard Peer, HMAC Secret und Wallet‑Informationen zu extrahieren.
@@ -800,6 +840,7 @@ Exportiert:
 /wallet/hot/xpub.txt
 /wallet/hot/descriptor.public.txt
 /wallet/hot/metadata.json
+/wallet/cold/keyA.meta.json
 ```
 
 Einsatz:

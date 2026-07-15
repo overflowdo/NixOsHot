@@ -49,7 +49,7 @@ services:
      - "8080"
      
   postgres:
-    image: postgres:16
+    image: postgres:16@sha256:be01cf82fc7dbba824acf0a82e150b4b360f3ff93c6631d7844af431e841a95c
     container_name: postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -60,7 +60,7 @@ services:
     - ./psbt-signer/app/001_psbt.sql:/docker-entrypoint-initdb.d/001_psbt.sql:ro
 
   proxy:
-    image: nginxinc/nginx-unprivileged:1.27-alpine
+    image: nginxinc/nginx-unprivileged:1.31-alpine@sha256:6320020c7da8714feab524e02c08c5a1958675c4e68700e93a2fd8970b065786
     container_name: signer-proxy
     restart: unless-stopped
     read_only: true
@@ -79,7 +79,7 @@ services:
       - "10.10.0.2:8080:8080"
 
   redis:
-    image: redis:7-alpine
+    image: redis:8-alpine@sha256:9d317178eceac8454a2284a9e6df2466b93c745529947f0cd42a0fa9609d7005
     container_name: signer-redis
     restart: unless-stopped
     user: "redis"

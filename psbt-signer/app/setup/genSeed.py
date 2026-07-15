@@ -46,11 +46,11 @@ try:
         "-S", session_ctx
     ], check=True)
 
-    #Berechne die Policy basierend auf dem aktuellen Zustand von PCR 4, 8, 9 und 11
+    #Berechne die Policy basierend auf dem aktuellen Zustand von PCR
     subprocess.run([
         "tpm2_policypcr",
         "-S", session_ctx,
-        "-l", "sha256:4,8,9,11",    #PCR 4,8,9,11 um tpm nach rebuild-switch von NixOS unbrauchbar zu machen
+        "-l", "sha256:4,9,12",    
         "-L", policy_file
     ], check=True)
 
